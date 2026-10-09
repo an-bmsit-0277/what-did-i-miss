@@ -1,4 +1,4 @@
-import type { ParsedMessage, FindingItem, RecapStats } from '../types';
+import type { ParsedMessage, FindingItem, RecapStats } from '../types/index.ts';
 
 const STOP_WORDS = new Set([
   'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i', 'it', 'for', 'not', 'on', 'with', 'he',

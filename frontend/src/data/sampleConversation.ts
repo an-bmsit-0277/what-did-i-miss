@@ -1,4 +1,4 @@
-import type { ParsedMessage } from '../types';
+import type { ParsedMessage } from '../types/index.ts';
 
 export const SAMPLE_CONVERSATION_RAW = `[2026-10-09 09:15:22] Maya Lin: Good morning team. Starting the payment gateway migration cutover now.
 [2026-10-09 09:17:40] Leo Chen: Infrastructure standby is green. Database replicas are synchronized.

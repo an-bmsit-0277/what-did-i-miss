@@ -1,4 +1,4 @@
-import type { ParsedMessage, FindingItem } from '../types';
+import type { ParsedMessage, FindingItem } from '../types/index.ts';
 
 // URGENCY DETECTION
 const URGENT_REGEX = /\b(critical|urgent|blocker|p0|outage|incident|emergency|fatal|fatal error|500 internal server error|asap)\b/i;
@@ -43,7 +43,7 @@ export function detectDecision(msg: ParsedMessage): FindingItem | null {
 
 // DEADLINE DETECTION
 const DEADLINE_REGEX = /\b(deadline\s*(?:for|is)?|before\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)|by\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)|by\s+eod|before\s+eod|due\s+(?:on|by)|until\s+\d{1,2}(?::\d{2})?\s*(?:am|pm))\b/i;
-const EXTRACT_DUE_REGEX = /(?:by|before|until|deadline(?:\s+is)?)\s+([0-9]{1,2}(?::[0-9]{2})?\s*(?:am|pm)|eod|tomorrow|friday|monday|today)/i;
+const EXTRACT_DUE_REGEX = /(?:by|before|until|deadline(?:\s+is)?|\bis\b|\bdue\b|\bat\b)\s+([0-9]{1,2}(?::[0-9]{2})?\s*(?:am|pm)|eod|tomorrow|friday|monday|today)/i;
 
 export function detectDeadline(msg: ParsedMessage): FindingItem | null {
   const match = msg.text.match(DEADLINE_REGEX);

@@ -111,6 +111,16 @@ The application accepts both `.json` and `.txt` files:
    npm run build
    ```
 
+### Chrome Extension Installation (Manifest V3)
+
+1. Open Google Chrome and navigate to `chrome://extensions/`.
+2. Toggle on **Developer mode** (top right switch).
+3. Click **Load unpacked** (top left).
+4. Select the `extension/` folder in this repository (`What-Did-I-Miss/extension/`).
+5. Open the Chrome Side Panel (or click the **Missed.** extension icon in the toolbar).
+6. Navigate to [web.whatsapp.com](https://web.whatsapp.com/), open any chat, and click **"Catch me up"** to analyze the active conversation on-device!
+   *(You can also click **"Load Demo"** in the side panel header at any time to explore the interface without an active WhatsApp Web tab).*
+
 ---
 
 ## Privacy Guarantee

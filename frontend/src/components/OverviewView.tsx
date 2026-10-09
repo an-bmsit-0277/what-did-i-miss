@@ -239,6 +239,9 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                   {/* Interactive Checkbox */}
                   <button
                     type="button"
+                    role="checkbox"
+                    aria-checked={isCompleted}
+                    aria-label={isCompleted ? 'Mark incomplete' : 'Mark complete'}
                     onClick={() => onToggleTask(task.id)}
                     className="mt-0.5 text-emerald-600 hover:text-emerald-700 flex-shrink-0 cursor-pointer"
                     title={isCompleted ? 'Mark incomplete' : 'Mark complete'}

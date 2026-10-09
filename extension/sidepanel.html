@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Missed. — WhatsApp Catch-Up</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo-icon">✦</div>
+      <span class="logo-text">Missed<span class="logo-dot">.</span></span>
+      <span class="privacy-badge">🔒 On-Device</span>
+    </div>
+    <div class="header-actions">
+      <button id="refreshBtn" class="icon-btn" title="Re-analyze / Refresh">↻</button>
+      <button id="sampleBtn" class="text-btn" title="Load sample incident conversation">Load Demo</button>
+    </div>
+  </header>
+
+  <!-- Error / Status Notice Banner -->
+  <div id="noticeBanner" class="notice-banner hidden"></div>
+
+  <!-- Conversation Bar -->
+  <section class="conv-bar">
+    <div class="conv-info">
+      <div id="convTitle" class="conv-title">No conversation loaded</div>
+      <div class="conv-meta">
+        <span id="msgCount">0 messages</span>
+        <span class="bullet">•</span>
+        <span id="convSource" class="source-tag">Idle</span>
+      </div>
+    </div>
+    <button id="catchMeUpBtn" class="primary-btn">
+      <span id="catchBtnText">Catch me up</span>
+    </button>
+  </section>
+
+  <!-- Summary Counters -->
+  <section class="counters-row">
+    <div class="counter-card urgent" data-tab="important">
+      <span class="counter-label">Urgent</span>
+      <span id="urgentCount" class="counter-value">0</span>
+    </div>
+    <div class="counter-card tasks" data-tab="tasks">
+      <span class="counter-label">Tasks</span>
+      <span id="tasksCount" class="counter-value">0</span>
+    </div>
+    <div class="counter-card decisions" data-tab="important">
+      <span class="counter-label">Decisions</span>
+      <span id="decisionsCount" class="counter-value">0</span>
+    </div>
+  </section>
+
+  <!-- Navigation Tabs -->
+  <nav class="nav-tabs">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="tasks">Tasks (<span id="tabTaskCount">0</span>)</button>
+    <button class="tab-btn" data-tab="important">Important (<span id="tabImportantCount">0</span>)</button>
+  </nav>
+
+  <!-- Main Views Container -->
+  <main id="tabContent" class="tab-content">
+    <!-- 1. Overview View -->
+    <div id="overviewView" class="view-panel active">
+      <section class="panel-card recap-card">
+        <h4 class="card-title">What Did I Miss?</h4>
+        <ul id="recapBullets" class="bullets-list">
+          <li>Click "Catch me up" on an open WhatsApp chat, or click "Load Demo".</li>
+        </ul>
+        <div id="recapTopics" class="topics-row"></div>
+      </section>
+
+      <section class="panel-section">
+        <h4 class="section-title">Needs Attention</h4>
+        <div id="overviewUrgent" class="cards-list"></div>
+      </section>
+
+      <section class="panel-section">
+        <h4 class="section-title">Decisions & Deadlines</h4>
+        <div id="overviewDecisions" class="cards-list"></div>
+      </section>
+
+      <section class="panel-section">
+        <h4 class="section-title">Top Tasks</h4>
+        <div id="overviewTasks" class="cards-list"></div>
+      </section>
+    </div>
+
+    <!-- 2. Tasks View -->
+    <div id="tasksView" class="view-panel">
+      <div id="tasksList" class="cards-list"></div>
+    </div>
+
+    <!-- 3. Important View -->
+    <div id="importantView" class="view-panel">
+      <div id="importantList" class="cards-list"></div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <span>100% on-device deterministic analysis</span>
+    <button id="copySummaryBtn" class="footer-btn">Copy Summary</button>
+  </footer>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>
+

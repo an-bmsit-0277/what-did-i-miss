@@ -1,3 +1,8 @@
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const chrome: any;
+}
+
 export interface ParsedMessage {
   id: string;
   sender: string;

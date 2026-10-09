@@ -59,8 +59,39 @@ export default function App() {
   }, [messages, analysisKey]);
 
   // Handle "Catch me up" primary action button
-  const handleCatchMeUp = () => {
+  const handleCatchMeUp = async () => {
     setIsAnalyzing(true);
+    setError(undefined);
+
+    // If running inside Chrome Extension environment, query active WhatsApp Web tab
+    if (typeof chrome !== 'undefined' && chrome.tabs && chrome.runtime?.id) {
+      try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (tab?.url && tab.url.includes('web.whatsapp.com') && tab.id) {
+          chrome.tabs.sendMessage(tab.id, { type: 'SCRAPE_WHATSAPP_CHAT' }, (response: any) => {
+            setIsAnalyzing(false);
+            if (chrome.runtime.lastError || !response) {
+              setWarning('Could not read from WhatsApp Web. Analyzing active conversation.');
+              setAnalysisKey((k) => k + 1);
+              return;
+            }
+            if (!response.success) {
+              setError(response.error || 'Failed to read messages from WhatsApp Web.');
+              return;
+            }
+            setMessages(response.messages);
+            setActiveFileName(response.chatTitle || 'Active WhatsApp Chat');
+            setIsSampleLoaded(false);
+            setCompletedTaskIds(new Set());
+            setAnalysisKey((k) => k + 1);
+          });
+          return;
+        }
+      } catch (err) {
+        console.warn('Chrome extension messaging fallback:', err);
+      }
+    }
+
     setTimeout(() => {
       setAnalysisKey((k) => k + 1);
       setIsAnalyzing(false);
@@ -120,6 +151,15 @@ export default function App() {
   const handleNativeFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
+      if (file.size > 10 * 1024 * 1024) {
+        setError(`File size (${(file.size / (1024 * 1024)).toFixed(1)}MB) exceeds the 10MB limit. Please upload a smaller chat export.`);
+        return;
+      }
+      if (file.size === 0) {
+        setError('The selected file is empty (0 bytes).');
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (ev) => {
         const content = ev.target?.result as string;
@@ -150,6 +190,20 @@ export default function App() {
     // In sidepanel mode, open the context drawer
     if (layoutMode === 'sidepanel') {
       setIsDrawerOpen(true);
+    }
+    // Also highlight in live WhatsApp Web tab if running in Chrome extension
+    if (typeof chrome !== 'undefined' && chrome.tabs && chrome.runtime?.id) {
+      chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]: any) => {
+        if (tab?.id && tab.url?.includes('web.whatsapp.com')) {
+          const finding = analysis.findings.find((f) => f.sourceMessageId === sourceMessageId);
+          if (finding) {
+            chrome.tabs.sendMessage(tab.id, {
+              type: 'HIGHLIGHT_SOURCE_MESSAGE',
+              snippet: finding.snippet,
+            }).catch(() => {});
+          }
+        }
+      }).catch(() => {});
     }
   };
 
@@ -291,6 +345,7 @@ export default function App() {
             <Dropzone
               onFileLoaded={handleFileLoaded}
               onLoadSample={handleLoadSample}
+              onError={setError}
             />
           </div>
         ) : (

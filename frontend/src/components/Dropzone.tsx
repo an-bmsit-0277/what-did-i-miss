@@ -4,9 +4,10 @@ import { UploadCloud, FileText, FileCode2, PlayCircle, ShieldCheck } from 'lucid
 interface DropzoneProps {
   onFileLoaded: (content: string, fileName: string) => void;
   onLoadSample: () => void;
+  onError?: (msg: string) => void;
 }
 
-export const Dropzone: React.FC<DropzoneProps> = ({ onFileLoaded, onLoadSample }) => {
+export const Dropzone: React.FC<DropzoneProps> = ({ onFileLoaded, onLoadSample, onError }) => {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -21,6 +22,15 @@ export const Dropzone: React.FC<DropzoneProps> = ({ onFileLoaded, onLoadSample }
   };
 
   const processFile = (file: File) => {
+    if (file.size > 10 * 1024 * 1024) {
+      onError?.(`File size (${(file.size / (1024 * 1024)).toFixed(1)}MB) exceeds the 10MB limit. Please upload a smaller chat export.`);
+      return;
+    }
+    if (file.size === 0) {
+      onError?.('The selected file is empty (0 bytes).');
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (e) => {
       const content = e.target?.result as string;

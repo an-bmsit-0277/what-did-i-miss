@@ -1,6 +1,6 @@
-import type { ParseResult } from '../types';
-import { parseJsonContent } from './jsonParser';
-import { parseTxtContent } from './txtParser';
+import type { ParseResult } from '../types/index.ts';
+import { parseJsonContent } from './jsonParser.ts';
+import { parseTxtContent } from './txtParser.ts';
 
 export function parseConversation(content: string, fileName?: string): ParseResult {
   const trimmed = content.trim();
@@ -36,4 +36,3 @@ export function parseConversation(content: string, fileName?: string): ParseResu
   // Fallback to text parsing
   return parseTxtContent(content);
 }
-

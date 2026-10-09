@@ -1,12 +1,12 @@
-import type { ParsedMessage, FindingItem, ConversationAnalysis } from '../types';
+import type { ParsedMessage, FindingItem, ConversationAnalysis } from '../types/index.ts';
 import {
   detectUrgency,
   detectDecision,
   detectDeadline,
   detectActionItem,
   detectMention,
-} from './detectors';
-import { generateRecap } from './recapGenerator';
+} from './detectors.ts';
+import { generateRecap } from './recapGenerator.ts';
 
 export function analyzeConversation(messages: ParsedMessage[]): ConversationAnalysis {
   const findings: FindingItem[] = [];
@@ -64,4 +64,3 @@ export function analyzeConversation(messages: ParsedMessage[]): ConversationAnal
     stats,
   };
 }
-

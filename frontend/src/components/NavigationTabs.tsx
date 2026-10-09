@@ -16,10 +16,12 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
   importantCount,
 }) => {
   return (
-    <div className="flex items-center border-b border-slate-200 bg-white px-2 select-none">
+    <div role="tablist" aria-label="Catch-up views" className="flex items-center border-b border-slate-200 bg-white px-2 select-none">
       {/* Overview Tab */}
       <button
         type="button"
+        role="tab"
+        aria-selected={activeTab === 'overview'}
         onClick={() => onTabChange('overview')}
         className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold border-b-2 transition-all ${
           activeTab === 'overview'
@@ -34,6 +36,8 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
       {/* Tasks Tab */}
       <button
         type="button"
+        role="tab"
+        aria-selected={activeTab === 'tasks'}
         onClick={() => onTabChange('tasks')}
         className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold border-b-2 transition-all ${
           activeTab === 'tasks'
@@ -59,6 +63,8 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
       {/* Important Tab */}
       <button
         type="button"
+        role="tab"
+        aria-selected={activeTab === 'important'}
         onClick={() => onTabChange('important')}
         className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold border-b-2 transition-all ${
           activeTab === 'important'
