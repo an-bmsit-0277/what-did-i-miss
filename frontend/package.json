@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@missed/engine": "*",
     "@tailwindcss/vite": "^4.3.3",
     "axios": "^1.20.0",
     "lucide-react": "^1.53.0",

@@ -1,6 +1,6 @@
 import React from 'react';
 import { AlertTriangle, CheckSquare, Target } from 'lucide-react';
-import type { ActiveTab } from '../types';
+import type { ActiveTab } from '@missed/engine';
 
 interface SummaryCountersProps {
   urgentCount: number;

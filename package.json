@@ -1,0 +1,20 @@
+{
+  "name": "what-did-i-miss-workspace",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "workspaces": [
+    "packages/engine",
+    "frontend"
+  ],
+  "scripts": {
+    "test": "npm test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "build:extension": "node scripts/build-extension.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}
+

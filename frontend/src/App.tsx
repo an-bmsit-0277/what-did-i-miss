@@ -1,8 +1,12 @@
 import { useState, useMemo, useRef } from 'react';
-import type { ParsedMessage, ActiveTab, ConversationAnalysis } from './types';
-import { SAMPLE_MESSAGES } from './data/sampleConversation';
-import { parseConversation } from './parsers';
-import { analyzeConversation } from './heuristics/analyzer';
+import {
+  SAMPLE_MESSAGES,
+  parseConversation,
+  analyzeConversation,
+  type ParsedMessage,
+  type ActiveTab,
+  type ConversationAnalysis,
+} from '@missed/engine';
 import { MissedHeader } from './components/MissedHeader';
 import { ConversationBar } from './components/ConversationBar';
 import { SummaryCounters } from './components/SummaryCounters';

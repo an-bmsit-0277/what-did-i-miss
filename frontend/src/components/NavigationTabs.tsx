@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ActiveTab } from '../types';
+import type { ActiveTab } from '@missed/engine';
 import { Layers, CheckSquare, AlertCircle } from 'lucide-react';
 
 interface NavigationTabsProps {

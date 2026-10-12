@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { FindingItem } from '../types';
+import type { FindingItem } from '@missed/engine';
 import {
   AlertTriangle,
   Target,

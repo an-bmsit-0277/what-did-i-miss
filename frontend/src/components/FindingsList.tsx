@@ -1,5 +1,5 @@
 import React from 'react';
-import type { FindingItem } from '../types';
+import type { FindingItem } from '@missed/engine';
 import { FindingCard } from './FindingCard';
 import { SearchX } from 'lucide-react';
 

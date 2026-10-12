@@ -1,0 +1,40 @@
+{
+  "name": "@missed/engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./types": {
+      "types": "./src/types.ts",
+      "default": "./src/types.ts"
+    },
+    "./parsers": {
+      "types": "./src/parsers/index.ts",
+      "default": "./src/parsers/index.ts"
+    },
+    "./heuristics": {
+      "types": "./src/heuristics/analyzer.ts",
+      "default": "./src/heuristics/analyzer.ts"
+    },
+    "./sample": {
+      "types": "./src/sampleConversation.ts",
+      "default": "./src/sampleConversation.ts"
+    }
+  },
+  "scripts": {
+    "test": "node --test --experimental-strip-types \"tests/**/*.test.ts\"",
+    "lint": "oxlint src tests",
+    "build": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "oxlint": "^1.81.0",
+    "typescript": "~6.0.2"
+  }
+}
+

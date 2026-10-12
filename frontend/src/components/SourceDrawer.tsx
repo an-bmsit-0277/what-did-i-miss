@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ParsedMessage } from '../types';
+import type { ParsedMessage } from '@missed/engine';
 import { X, Pin, ExternalLink } from 'lucide-react';
 
 interface SourceDrawerProps {

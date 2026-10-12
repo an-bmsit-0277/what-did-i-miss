@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import type { ParsedMessage } from '../types';
+import type { ParsedMessage } from '@missed/engine';
 import { Pin } from 'lucide-react';
 
 interface TranscriptViewerProps {

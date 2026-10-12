@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ConversationAnalysis } from '../types';
+import type { ConversationAnalysis } from '@missed/engine';
 import {
   MessageSquare,
   Users,
