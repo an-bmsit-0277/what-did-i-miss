@@ -1,19 +1,21 @@
 import React from 'react';
-import type { ConversationAnalysis } from '@missed/engine';
+import type { ConversationAnalysis, FindingItem } from '@missed/engine';
 import {
   Sparkles,
   AlertTriangle,
   Target,
-  Clock,
   CheckSquare,
   Square,
   ArrowRight,
   User,
   ChevronRight,
+  Clock,
 } from 'lucide-react';
+import { Badge, Card, CategoryBadge, EmptyState, PriorityBadge } from './ui';
 
 interface OverviewViewProps {
   analysis: ConversationAnalysis;
+  filteredFindings?: FindingItem[];
   completedTaskIds: Set<string>;
   onToggleTask: (taskId: string) => void;
   onJumpToMessage: (sourceMessageId: string) => void;
@@ -23,75 +25,91 @@ interface OverviewViewProps {
 
 export const OverviewView: React.FC<OverviewViewProps> = ({
   analysis,
+  filteredFindings,
   completedTaskIds,
   onToggleTask,
   onJumpToMessage,
   onViewAllTasks,
   onViewAllImportant,
 }) => {
-  const { recap, findings } = analysis;
+  const { recap } = analysis;
+  const activeFindings = filteredFindings ?? analysis.findings;
 
-  // Urgent findings (Needs Attention)
-  const urgentFindings = findings.filter((f) => f.category === 'urgent').slice(0, 3);
+  const urgentFindings = activeFindings
+    .filter((f) => f.category === 'urgent')
+    .slice(0, 3);
 
-  // Decisions & Deadlines
-  const decisionsAndDeadlines = findings
+  const decisionsAndDeadlines = activeFindings
     .filter((f) => f.category === 'decision' || f.category === 'deadline')
     .slice(0, 3);
 
-  // Tasks (What do I need to do?)
-  const tasks = findings.filter((f) => f.category === 'action_item').slice(0, 4);
+  const tasks = activeFindings
+    .filter((f) => f.category === 'action_item')
+    .slice(0, 4);
 
   return (
-    <div className="p-3.5 space-y-4">
-      {/* 1. What Did I Miss? (Short Executive Recap) */}
-      <section className="bg-slate-50/80 rounded-xl p-3 border border-slate-200/80">
-        <div className="flex items-center gap-1.5 mb-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-            What Did I Miss?
-          </h3>
+    <div className="p-4 space-y-5">
+      {/* 1. Executive Recap Card with Subtle Ember Spotlight */}
+      <Card variant="featured" padding="sm" spotlight>
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <div className="flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-ember-hover shrink-0" aria-hidden="true" />
+            <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider">
+              Executive Catch-Up Recap
+            </h3>
+          </div>
+          {recap.startTime && (
+            <span className="text-[10px] font-mono text-text-muted">
+              {recap.startTime.split(' ')[1] || recap.startTime}
+              {recap.endTime ? ` → ${recap.endTime.split(' ')[1] || recap.endTime}` : ''}
+            </span>
+          )}
         </div>
 
-        <ul className="space-y-1 text-xs text-slate-750">
+        <ul className="space-y-1.5 text-xs text-text-secondary">
           {recap.summaryBullets.slice(0, 3).map((bullet, idx) => (
-            <li key={idx} className="flex items-start gap-1.5 leading-snug">
-              <span className="text-emerald-600 font-bold">•</span>
-              <span>{bullet}</span>
+            <li key={idx} className="flex items-start gap-2 leading-relaxed">
+              <span className="text-ember-hover font-bold mt-0.5" aria-hidden="true">
+                •
+              </span>
+              <span className="text-text-primary/95">{bullet}</span>
             </li>
           ))}
         </ul>
 
         {recap.topTopics.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2.5 pt-2 border-t border-slate-200/60">
-            {recap.topTopics.slice(0, 4).map((topic, idx) => (
-              <span
-                key={idx}
-                className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-white border border-slate-200 text-slate-600"
-              >
+          <div className="flex flex-wrap items-center gap-1.5 mt-3 pt-2.5 border-t border-border-default">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-text-muted mr-1">
+              Signals:
+            </span>
+            {recap.topTopics.slice(0, 5).map((topic, idx) => (
+              <Badge key={idx} variant="neutral" mono>
                 #{topic}
-              </span>
+              </Badge>
             ))}
           </div>
         )}
-      </section>
+      </Card>
 
-      {/* 2. What Needs My Attention? (Highest-Priority Alerts) */}
+      {/* 2. Needs Immediate Attention (Urgent Alerts) */}
       {urgentFindings.length > 0 && (
-        <section className="space-y-2">
+        <section aria-label="Urgent alerts" className="space-y-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
-              <AlertTriangle className="w-3.5 h-3.5 text-rose-600 flex-shrink-0" />
-              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+              <AlertTriangle
+                className="w-3.5 h-3.5 text-semantic-urgent shrink-0"
+                aria-hidden="true"
+              />
+              <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider">
                 Needs Attention ({urgentFindings.length})
               </h3>
             </div>
             <button
               type="button"
               onClick={onViewAllImportant}
-              className="text-[11px] text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-0.5"
+              className="text-[11px] text-ember-hover hover:text-warm-highlight font-semibold inline-flex items-center gap-0.5 focus-ember rounded cursor-pointer"
             >
-              View all
+              <span>Inspect all</span>
               <ChevronRight className="w-3 h-3" />
             </button>
           </div>
@@ -100,32 +118,37 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             {urgentFindings.map((finding) => (
               <div
                 key={finding.id}
-                className="bg-white rounded-xl border border-rose-200/90 p-2.5 shadow-2xs hover:border-rose-300 transition-colors"
+                className="rounded-2xl bg-elevated border border-semantic-urgent/35 p-3 hover:border-semantic-urgent/60 transition-colors"
               >
-                <div className="flex items-center justify-between gap-1 mb-1">
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200">
-                    HIGH PRIORITY
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-mono">
-                    {finding.timestamp?.split(' ')[1] || finding.timestamp}
-                  </span>
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <CategoryBadge category="urgent" />
+                    <PriorityBadge urgency={finding.urgency} />
+                  </div>
+                  {finding.timestamp && (
+                    <span className="text-[10px] text-text-muted font-mono">
+                      {finding.timestamp.split(' ')[1] || finding.timestamp}
+                    </span>
+                  )}
                 </div>
 
-                <p className="text-xs font-semibold text-slate-900 mb-1 leading-snug">
+                <p className="text-xs font-semibold text-text-primary mb-1.5 leading-snug">
                   {finding.title}
                 </p>
-                <p className="text-[11px] text-slate-600 italic bg-rose-50/40 rounded p-1.5 border border-rose-100 mb-1.5">
-                  "{finding.snippet}"
+                <p className="text-[11px] text-text-secondary bg-canvas/80 rounded-xl p-2 border border-border-default mb-2 leading-relaxed">
+                  “{finding.snippet}”
                 </p>
 
-                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-100">
-                  <span className="truncate">By {finding.sender}</span>
+                <div className="flex items-center justify-between text-[11px] text-text-secondary pt-1.5 border-t border-border-subtle">
+                  <span className="truncate">
+                    From <strong className="text-text-primary font-medium">{finding.sender}</strong>
+                  </span>
                   <button
                     type="button"
                     onClick={() => onJumpToMessage(finding.sourceMessageId)}
-                    className="inline-flex items-center gap-1 text-emerald-700 hover:text-emerald-800 font-semibold text-[11px]"
+                    className="inline-flex items-center gap-1 text-ember-hover hover:text-warm-highlight font-semibold text-[11px] focus-ember rounded cursor-pointer"
                   >
-                    <span>Source</span>
+                    <span>Trace source</span>
                     <ArrowRight className="w-3 h-3" />
                   </button>
                 </div>
@@ -137,144 +160,152 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
 
       {/* 3. Decisions & Deadlines */}
       {decisionsAndDeadlines.length > 0 && (
-        <section className="space-y-2">
+        <section aria-label="Decisions and deadlines" className="space-y-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
-              <Target className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />
-              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+              <Target
+                className="w-3.5 h-3.5 text-semantic-decision shrink-0"
+                aria-hidden="true"
+              />
+              <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider">
                 Decisions & Deadlines
               </h3>
             </div>
             <button
               type="button"
               onClick={onViewAllImportant}
-              className="text-[11px] text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-0.5"
+              className="text-[11px] text-ember-hover hover:text-warm-highlight font-semibold inline-flex items-center gap-0.5 focus-ember rounded cursor-pointer"
             >
-              View all
+              <span>View all</span>
               <ChevronRight className="w-3 h-3" />
             </button>
           </div>
 
-          <div className="space-y-1.5">
-            {decisionsAndDeadlines.map((item) => {
-              const isDecision = item.category === 'decision';
-              return (
-                <div
-                  key={item.id}
-                  className="bg-white rounded-xl border border-slate-200/90 p-2.5 shadow-2xs hover:border-slate-300 transition-colors"
-                >
-                  <div className="flex items-center justify-between gap-1 mb-1">
-                    <span
-                      className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.2 rounded border ${
-                        isDecision
-                          ? 'bg-sky-50 text-sky-700 border-sky-200'
-                          : 'bg-purple-50 text-purple-700 border-purple-200'
-                      }`}
-                    >
-                      {isDecision ? (
-                        <>
-                          <Target className="w-2.5 h-2.5" /> Decision
-                        </>
-                      ) : (
-                        <>
-                          <Clock className="w-2.5 h-2.5" /> Deadline
-                        </>
-                      )}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => onJumpToMessage(item.sourceMessageId)}
-                      className="text-emerald-700 hover:text-emerald-800 font-semibold text-[11px] flex items-center gap-0.5"
-                    >
-                      Source <ArrowRight className="w-2.5 h-2.5" />
-                    </button>
+          <div className="space-y-2">
+            {decisionsAndDeadlines.map((item) => (
+              <div
+                key={item.id}
+                className="rounded-2xl bg-elevated border border-border-default hover:border-border-strong p-3 transition-colors"
+              >
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <CategoryBadge category={item.category} />
+                    {item.dueDate && (
+                      <Badge
+                        variant="deadline"
+                        mono
+                        icon={<Clock className="w-2.5 h-2.5" />}
+                      >
+                        {item.dueDate}
+                      </Badge>
+                    )}
                   </div>
-                  <p className="text-xs text-slate-800 leading-snug">
-                    {item.snippet}
-                  </p>
+                  <button
+                    type="button"
+                    onClick={() => onJumpToMessage(item.sourceMessageId)}
+                    className="text-ember-hover hover:text-warm-highlight font-semibold text-[11px] inline-flex items-center gap-0.5 focus-ember rounded cursor-pointer shrink-0"
+                  >
+                    <span>Source</span>
+                    <ArrowRight className="w-2.5 h-2.5" />
+                  </button>
                 </div>
-              );
-            })}
+                <p className="text-xs text-text-primary/95 leading-relaxed">
+                  {item.snippet}
+                </p>
+                <div className="mt-1.5 text-[10px] text-text-muted">
+                  Logged by <span className="text-text-secondary font-medium">{item.sender}</span>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
       )}
 
-      {/* 4. What Do I Need To Do? (Short Actionable Task List) */}
-      <section className="space-y-2">
+      {/* 4. Actionable Tasks */}
+      <section aria-label="Actionable tasks" className="space-y-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <CheckSquare className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
-            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+            <CheckSquare
+              className="w-3.5 h-3.5 text-semantic-task shrink-0"
+              aria-hidden="true"
+            />
+            <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider">
               Actionable Tasks ({tasks.length})
             </h3>
           </div>
           <button
             type="button"
             onClick={onViewAllTasks}
-            className="text-[11px] text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-0.5"
+            className="text-[11px] text-ember-hover hover:text-warm-highlight font-semibold inline-flex items-center gap-0.5 focus-ember rounded cursor-pointer"
           >
-            All tasks
+            <span>All tasks</span>
             <ChevronRight className="w-3 h-3" />
           </button>
         </div>
 
         {tasks.length === 0 ? (
-          <div className="bg-white rounded-xl border border-slate-200 p-3 text-center text-xs text-slate-500">
-            No action items detected in this conversation.
-          </div>
+          <EmptyState
+            title="No action items detected"
+            description="No explicit task assignments matched your current filter in this thread."
+          />
         ) : (
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             {tasks.map((task) => {
               const isCompleted = completedTaskIds.has(task.id);
 
               return (
                 <div
                   key={task.id}
-                  className={`bg-white rounded-xl border p-2.5 shadow-2xs transition-all flex items-start gap-2.5 ${
+                  className={`rounded-2xl border p-3 transition-all flex items-start gap-2.5 ${
                     isCompleted
-                      ? 'border-slate-200 bg-slate-50/50 opacity-60'
-                      : 'border-slate-200/90 hover:border-emerald-300'
+                      ? 'border-border-default bg-canvas/50 opacity-65'
+                      : 'bg-elevated border-border-default hover:border-ember/40'
                   }`}
                 >
-                  {/* Interactive Checkbox */}
                   <button
                     type="button"
                     role="checkbox"
                     aria-checked={isCompleted}
-                    aria-label={isCompleted ? 'Mark incomplete' : 'Mark complete'}
+                    aria-label={isCompleted ? 'Mark task incomplete' : 'Mark task complete'}
                     onClick={() => onToggleTask(task.id)}
-                    className="mt-0.5 text-emerald-600 hover:text-emerald-700 flex-shrink-0 cursor-pointer"
+                    className="mt-0.5 text-ember-hover hover:text-warm-highlight shrink-0 focus-ember rounded cursor-pointer"
                     title={isCompleted ? 'Mark incomplete' : 'Mark complete'}
                   >
                     {isCompleted ? (
-                      <CheckSquare className="w-4 h-4 text-emerald-600" />
+                      <CheckSquare className="w-4 h-4 text-semantic-local" />
                     ) : (
-                      <Square className="w-4 h-4 text-slate-400 hover:text-emerald-600" />
+                      <Square className="w-4 h-4 text-text-muted hover:text-ember-hover" />
                     )}
                   </button>
 
                   <div className="flex-1 min-w-0">
                     <p
-                      className={`text-xs text-slate-800 leading-snug ${
-                        isCompleted ? 'line-through text-slate-400' : 'font-medium'
+                      className={`text-xs leading-snug ${
+                        isCompleted
+                          ? 'line-through text-text-muted'
+                          : 'text-text-primary font-medium'
                       }`}
                     >
                       {task.snippet}
                     </p>
 
-                    <div className="flex items-center gap-2 mt-1 text-[10px] text-slate-500">
+                    <div className="flex items-center gap-2 mt-2 text-[10px] text-text-secondary">
                       {task.assignee && (
-                        <span className="inline-flex items-center gap-0.5 text-amber-800 bg-amber-50 px-1 py-0.2 rounded border border-amber-200 font-medium">
-                          <User className="w-2.5 h-2.5" />
-                          {task.assignee}
-                        </span>
+                        <Badge
+                          variant="action_item"
+                          icon={<User className="w-2.5 h-2.5" />}
+                        >
+                          @{task.assignee}
+                        </Badge>
                       )}
+                      <span className="text-text-muted truncate">from {task.sender}</span>
                       <button
                         type="button"
                         onClick={() => onJumpToMessage(task.sourceMessageId)}
-                        className="text-emerald-700 hover:text-emerald-800 font-semibold ml-auto flex items-center gap-0.5"
+                        className="text-ember-hover hover:text-warm-highlight font-semibold ml-auto inline-flex items-center gap-0.5 focus-ember rounded cursor-pointer shrink-0"
                       >
-                        Source <ArrowRight className="w-2.5 h-2.5" />
+                        <span>Source</span>
+                        <ArrowRight className="w-2.5 h-2.5" />
                       </button>
                     </div>
                   </div>
@@ -287,4 +318,3 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
     </div>
   );
 };
-

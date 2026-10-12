@@ -1,1 +1,207 @@
 @import "tailwindcss";
+
+@theme {
+  /* Surfaces — Obsidian & Solar Ember */
+  --color-void: #080706;
+  --color-canvas: #0C0A09;
+  --color-surface: #12100E;
+  --color-elevated: #181512;
+  --color-input: #1E1A17;
+  --color-ivory: #FAF8F5;
+
+  /* Typography Colors */
+  --color-text-primary: #FAF7F2;
+  --color-text-secondary: #A69F96;
+  --color-text-muted: #7D756C;
+  --color-text-dim: #6E675F;
+  --color-text-on-ivory: #12100E;
+
+  /* Primary Solar Ember Accents */
+  --color-ember: #FF521B;
+  --color-ember-hover: #FF6B35;
+  --color-amber-highlight: #FF8C42;
+  --color-warm-highlight: #FFB86C;
+
+  /* Semantic Category & Status Colors */
+  --color-semantic-urgent: #FF4D2A;
+  --color-semantic-decision: #38BDF8;
+  --color-semantic-task: #F59E0B;
+  --color-semantic-deadline: #C084FC;
+  --color-semantic-mention: #60A5FA;
+  --color-semantic-local: #10B981;
+  --color-semantic-ai: #FB923C;
+
+  /* Borders */
+  --color-border-default: #24201C;
+  --color-border-subtle: rgba(250, 247, 242, 0.07);
+  --color-border-strong: #332D27;
+  --color-border-ember: rgba(255, 82, 27, 0.42);
+
+  /* Typography Families */
+  --font-sans: "Inter", "Plus Jakarta Sans", "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Radii */
+  --radius-card: 1.375rem;
+  --radius-card-lg: 1.5rem;
+  --radius-card-md: 1rem;
+  --radius-panel: 1.5rem;
+  --radius-icon: 0.75rem;
+  --radius-control: 0.875rem;
+
+  /* Elevation & Shadows */
+  --shadow-card: 0 14px 34px -12px rgba(0, 0, 0, 0.65), 0 1px 0 0 rgba(250, 247, 242, 0.04) inset;
+  --shadow-elevated: 0 22px 48px -14px rgba(0, 0, 0, 0.8), 0 1px 0 0 rgba(250, 247, 242, 0.06) inset;
+  --shadow-obsidian-lg: 0 22px 48px -14px rgba(0, 0, 0, 0.8), 0 1px 0 0 rgba(250, 247, 242, 0.06) inset;
+  --shadow-ember: 0 10px 28px -6px rgba(255, 82, 27, 0.38), 0 1px 0 0 rgba(255, 184, 108, 0.32) inset;
+  --shadow-ember-subtle: 0 14px 36px -14px rgba(255, 82, 27, 0.22);
+}
+
+:root {
+  color-scheme: dark;
+  background-color: var(--color-void);
+  color: var(--color-text-primary);
+}
+
+html,
+body {
+  background-color: var(--color-void);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* ============================================================================
+   1. Atmospheric Diagonal Solar-Ray Lighting (Decorative, Non-Interactive)
+   ============================================================================ */
+.bg-solar-beam {
+  position: relative;
+  isolation: isolate;
+}
+
+.bg-solar-beam::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    linear-gradient(
+      122deg,
+      rgba(255, 82, 27, 0.14) 0%,
+      rgba(255, 140, 66, 0.07) 26%,
+      rgba(12, 10, 9, 0) 58%
+    ),
+    radial-gradient(
+      ellipse 70% 50% at 18% 0%,
+      rgba(255, 82, 27, 0.16),
+      transparent 70%
+    );
+}
+
+/* ============================================================================
+   2. Subtle Ember Spotlight on Featured Cards
+   ============================================================================ */
+.bg-ember-spotlight {
+  position: relative;
+  isolation: isolate;
+}
+
+.bg-ember-spotlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(
+    circle at 88% 12%,
+    rgba(255, 82, 27, 0.14) 0%,
+    rgba(255, 140, 66, 0.05) 38%,
+    transparent 72%
+  );
+}
+
+/* ============================================================================
+   3. Restrained Technical Circuit / Grid Decoration
+   ============================================================================ */
+.bg-circuit-grid {
+  background-image:
+    linear-gradient(to right, rgba(250, 247, 242, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(250, 247, 242, 0.03) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+.circuit-divider {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-border-default) 15%,
+    rgba(255, 82, 27, 0.35) 50%,
+    var(--color-border-default) 85%,
+    transparent 100%
+  );
+}
+
+/* ============================================================================
+   4. Specular Matte Card Borders
+   ============================================================================ */
+.border-specular {
+  border: 1px solid var(--color-border-default);
+  box-shadow: var(--shadow-card);
+}
+
+.border-specular-ember {
+  border: 1px solid var(--color-border-ember);
+  box-shadow: var(--shadow-card), var(--shadow-ember-subtle);
+}
+
+/* ============================================================================
+   5. Accessible Focus Rings
+   ============================================================================ */
+.focus-ember:focus-visible {
+  outline: 2px solid var(--color-ember-hover);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   6. Custom Usable Dark Scrollbars
+   ============================================================================ */
+.scrollbar-obsidian {
+  scrollbar-width: thin;
+  scrollbar-color: #2E2924 #0C0A09;
+}
+
+.scrollbar-obsidian::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-obsidian::-webkit-scrollbar-track {
+  background: #0C0A09;
+}
+
+.scrollbar-obsidian::-webkit-scrollbar-thumb {
+  background-color: #2E2924;
+  border-radius: 9999px;
+}
+
+.scrollbar-obsidian::-webkit-scrollbar-thumb:hover {
+  background-color: #443C35;
+}
+
+/* ============================================================================
+   7. Reduced Motion Accessibility Support
+   ============================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

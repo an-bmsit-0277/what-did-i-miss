@@ -17,23 +17,25 @@ export const SummaryCounters: React.FC<SummaryCountersProps> = ({
   decisionCount,
   onSelectTab,
 }) => {
+  const remainingTasks = Math.max(0, taskCount - completedTaskCount);
+
   return (
-    <div className="grid grid-cols-3 gap-2 px-3.5 py-2.5 bg-white border-b border-slate-100">
+    <div className="grid grid-cols-3 gap-2.5 px-4 py-3 bg-surface border-b border-border-default">
       {/* Urgent Counter */}
       <button
         type="button"
         onClick={() => onSelectTab('important')}
-        className="flex items-center gap-2 p-2 rounded-xl bg-rose-50/70 hover:bg-rose-100/70 border border-rose-200/70 text-left transition-colors group cursor-pointer"
-        title="View urgent items in Important tab"
+        className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-elevated/90 hover:bg-input border border-semantic-urgent/30 hover:border-semantic-urgent/60 text-left transition-all group focus-ember cursor-pointer"
+        title="Inspect urgent blockers in Important tab"
       >
-        <div className="w-7 h-7 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-          <AlertTriangle className="w-3.5 h-3.5" />
+        <div className="w-8 h-8 rounded-[var(--radius-icon)] bg-semantic-urgent/15 text-semantic-urgent border border-semantic-urgent/30 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <AlertTriangle className="w-3.5 h-3.5" aria-hidden="true" />
         </div>
         <div className="min-w-0">
-          <div className="text-[10px] font-semibold text-rose-700 uppercase tracking-wider">
+          <div className="text-[10px] font-semibold text-text-secondary uppercase tracking-wider">
             Urgent
           </div>
-          <div className="text-sm font-extrabold text-rose-900 leading-tight">
+          <div className="text-base font-extrabold font-mono text-text-primary leading-tight">
             {urgentCount}
           </div>
         </div>
@@ -43,21 +45,21 @@ export const SummaryCounters: React.FC<SummaryCountersProps> = ({
       <button
         type="button"
         onClick={() => onSelectTab('tasks')}
-        className="flex items-center gap-2 p-2 rounded-xl bg-amber-50/70 hover:bg-amber-100/70 border border-amber-200/70 text-left transition-colors group cursor-pointer"
-        title="View task checklist in Tasks tab"
+        className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-elevated/90 hover:bg-input border border-semantic-task/30 hover:border-semantic-task/60 text-left transition-all group focus-ember cursor-pointer"
+        title="Inspect action items in Tasks tab"
       >
-        <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-          <CheckSquare className="w-3.5 h-3.5" />
+        <div className="w-8 h-8 rounded-[var(--radius-icon)] bg-semantic-task/15 text-semantic-task border border-semantic-task/30 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <CheckSquare className="w-3.5 h-3.5" aria-hidden="true" />
         </div>
         <div className="min-w-0">
-          <div className="text-[10px] font-semibold text-amber-700 uppercase tracking-wider">
+          <div className="text-[10px] font-semibold text-text-secondary uppercase tracking-wider">
             Tasks
           </div>
-          <div className="text-sm font-extrabold text-amber-900 leading-tight">
-            {taskCount - completedTaskCount}
+          <div className="text-base font-extrabold font-mono text-text-primary leading-tight flex items-baseline gap-1">
+            <span>{remainingTasks}</span>
             {completedTaskCount > 0 && (
-              <span className="text-[10px] font-medium text-amber-600 ml-1">
-                ({completedTaskCount}✓)
+              <span className="text-[10px] font-mono font-medium text-semantic-local">
+                +{completedTaskCount}✓
               </span>
             )}
           </div>
@@ -68,17 +70,17 @@ export const SummaryCounters: React.FC<SummaryCountersProps> = ({
       <button
         type="button"
         onClick={() => onSelectTab('important')}
-        className="flex items-center gap-2 p-2 rounded-xl bg-sky-50/70 hover:bg-sky-100/70 border border-sky-200/70 text-left transition-colors group cursor-pointer"
-        title="View decisions in Important tab"
+        className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-elevated/90 hover:bg-input border border-semantic-decision/30 hover:border-semantic-decision/60 text-left transition-all group focus-ember cursor-pointer"
+        title="Inspect decisions in Important tab"
       >
-        <div className="w-7 h-7 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-          <Target className="w-3.5 h-3.5" />
+        <div className="w-8 h-8 rounded-[var(--radius-icon)] bg-semantic-decision/15 text-semantic-decision border border-semantic-decision/30 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <Target className="w-3.5 h-3.5" aria-hidden="true" />
         </div>
         <div className="min-w-0">
-          <div className="text-[10px] font-semibold text-sky-700 uppercase tracking-wider">
+          <div className="text-[10px] font-semibold text-text-secondary uppercase tracking-wider">
             Decisions
           </div>
-          <div className="text-sm font-extrabold text-sky-900 leading-tight">
+          <div className="text-base font-extrabold font-mono text-text-primary leading-tight">
             {decisionCount}
           </div>
         </div>
@@ -86,4 +88,3 @@ export const SummaryCounters: React.FC<SummaryCountersProps> = ({
     </div>
   );
 };
-

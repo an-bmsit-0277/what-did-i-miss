@@ -1,6 +1,7 @@
 import React from 'react';
 import type { ParsedMessage } from '@missed/engine';
-import { X, Pin, ExternalLink } from 'lucide-react';
+import { Pin, ExternalLink } from 'lucide-react';
+import { Button, Modal } from './ui';
 
 interface SourceDrawerProps {
   isOpen: boolean;
@@ -17,104 +18,89 @@ export const SourceDrawer: React.FC<SourceDrawerProps> = ({
   onClose,
   onOpenFullTranscript,
 }) => {
-  if (!isOpen || !sourceMessageId) return null;
+  const targetIdx = sourceMessageId
+    ? messages.findIndex((m) => m.id === sourceMessageId)
+    : -1;
 
-  const targetIdx = messages.findIndex((m) => m.id === sourceMessageId);
-  if (targetIdx === -1) return null;
+  if (!isOpen || !sourceMessageId || targetIdx === -1) return null;
 
-  const targetMsg = messages[targetIdx];
+  const targetMsg = messages[targetIdx]!;
   const prevMsg = targetIdx > 0 ? messages[targetIdx - 1] : null;
   const nextMsg = targetIdx < messages.length - 1 ? messages[targetIdx + 1] : null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-2xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-150">
-      <div className="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-bottom-4 duration-200">
-        {/* Header */}
-        <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider">
-            <Pin className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Source Message Context</span>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Message Stream Preview */}
-        <div className="p-4 space-y-3 overflow-y-auto bg-[#efeae2]/30 flex-1">
-          {/* Preceding Message */}
-          {prevMsg && (
-            <div className="bg-white/80 rounded-xl p-2.5 border border-slate-200/70 text-xs text-slate-500 opacity-75">
-              <div className="flex items-center justify-between text-[10px] mb-1">
-                <span className="font-semibold text-slate-600">{prevMsg.sender}</span>
-                <span className="font-mono text-slate-400">{prevMsg.timestamp}</span>
-              </div>
-              <p className="line-clamp-2">{prevMsg.text}</p>
-            </div>
-          )}
-
-          {/* Target Message (Highlighted) */}
-          <div className="bg-white rounded-xl p-3.5 border-2 border-emerald-500 shadow-md ring-2 ring-emerald-200/60">
-            <div className="flex items-center justify-between text-[11px] mb-1.5">
-              <span className="font-bold text-emerald-950 flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                {targetMsg.sender}
-              </span>
-              <span className="font-mono text-[10px] text-slate-400">
-                {targetMsg.timestamp}
-              </span>
-            </div>
-            <p className="text-xs text-slate-900 font-medium whitespace-pre-wrap leading-relaxed">
-              {targetMsg.text}
-            </p>
-          </div>
-
-          {/* Succeeding Message */}
-          {nextMsg && (
-            <div className="bg-white/80 rounded-xl p-2.5 border border-slate-200/70 text-xs text-slate-500 opacity-75">
-              <div className="flex items-center justify-between text-[10px] mb-1">
-                <span className="font-semibold text-slate-600">{nextMsg.sender}</span>
-                <span className="font-mono text-slate-400">{nextMsg.timestamp}</span>
-              </div>
-              <p className="line-clamp-2">{nextMsg.text}</p>
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="px-4 py-3 bg-white border-t border-slate-200 flex items-center justify-between text-xs">
-          <span className="text-[11px] text-slate-500">
-            Message {targetIdx + 1} of {messages.length}
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Source Message Trace"
+      subtitle={`Message #${targetIdx + 1} of ${messages.length} in conversation timeline`}
+      icon={<Pin className="w-4 h-4" />}
+      maxWidthClass="max-w-md"
+      footer={
+        <>
+          <span className="text-[11px] font-mono text-text-muted">
+            ID: {targetMsg.id}
           </span>
           <div className="flex items-center gap-2">
             {onOpenFullTranscript && (
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => {
                   onClose();
                   onOpenFullTranscript();
                 }}
-                className="text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-1 text-xs"
+                rightIcon={<ExternalLink className="w-3 h-3" />}
               >
-                <span>Full chat</span>
-                <ExternalLink className="w-3 h-3" />
-              </button>
+                Open Split Timeline
+              </Button>
             )}
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800"
-            >
+            <Button variant="primary" size="sm" onClick={onClose}>
               Done
-            </button>
+            </Button>
           </div>
+        </>
+      }
+    >
+      <div className="space-y-3">
+        {/* Preceding Message Context */}
+        {prevMsg && (
+          <div className="rounded-2xl p-3 bg-canvas/80 border border-border-default text-xs text-text-secondary opacity-80">
+            <div className="flex items-center justify-between text-[10px] mb-1">
+              <span className="font-semibold text-text-primary">{prevMsg.sender}</span>
+              <span className="font-mono text-text-muted">{prevMsg.timestamp}</span>
+            </div>
+            <p className="line-clamp-2 leading-relaxed">{prevMsg.text}</p>
+          </div>
+        )}
+
+        {/* Highlighted Target Source Message */}
+        <div className="rounded-2xl p-4 bg-elevated border-2 border-ember shadow-[var(--shadow-ember-subtle)]">
+          <div className="flex items-center justify-between text-xs mb-2">
+            <span className="font-bold text-warm-highlight flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-ember" aria-hidden="true" />
+              {targetMsg.sender}
+            </span>
+            <span className="font-mono text-[10px] text-text-muted">
+              {targetMsg.timestamp}
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-text-primary font-medium whitespace-pre-wrap leading-relaxed">
+            {targetMsg.text}
+          </p>
         </div>
+
+        {/* Succeeding Message Context */}
+        {nextMsg && (
+          <div className="rounded-2xl p-3 bg-canvas/80 border border-border-default text-xs text-text-secondary opacity-80">
+            <div className="flex items-center justify-between text-[10px] mb-1">
+              <span className="font-semibold text-text-primary">{nextMsg.sender}</span>
+              <span className="font-mono text-text-muted">{nextMsg.timestamp}</span>
+            </div>
+            <p className="line-clamp-2 leading-relaxed">{nextMsg.text}</p>
+          </div>
+        )}
       </div>
-    </div>
+    </Modal>
   );
 };
-

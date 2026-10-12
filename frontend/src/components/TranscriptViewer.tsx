@@ -1,43 +1,67 @@
-import React, { useEffect, useRef } from 'react';
-import type { ParsedMessage } from '@missed/engine';
-import { Pin } from 'lucide-react';
+import React, { useEffect, useMemo, useRef } from 'react';
+import type { FindingItem, ParsedMessage } from '@missed/engine';
+import { MessageSquare, Pin, Sparkles } from 'lucide-react';
+import { Badge, CategoryBadge, EmptyState } from './ui';
 
 interface TranscriptViewerProps {
   messages: ParsedMessage[];
+  findings?: FindingItem[];
   highlightedMessageId: string | null;
   searchQuery: string;
+  selectedParticipant?: string;
+  onSelectMessage?: (messageId: string) => void;
 }
 
-// Consistent sender color palette (WhatsApp-style group chat sender colors)
-const SENDER_COLORS: Record<string, string> = {
-  'Maya Lin': 'text-emerald-700',
-  'Leo Chen': 'text-teal-700',
-  'Priya Sharma': 'text-indigo-700',
-  'Sam Thorne': 'text-purple-700',
-  'Alex Rivera': 'text-amber-700',
-};
+const SENDER_ACCENTS: readonly string[] = [
+  'text-[#FF8C42]',
+  'text-[#38BDF8]',
+  'text-[#34D399]',
+  'text-[#C084FC]',
+  'text-[#FBBF24]',
+  'text-[#60A5FA]',
+];
 
 function getSenderColor(name: string): string {
-  if (SENDER_COLORS[name]) return SENDER_COLORS[name];
-  const list = [
-    'text-emerald-700',
-    'text-blue-700',
-    'text-violet-700',
-    'text-amber-700',
-    'text-rose-700',
-    'text-cyan-700',
-  ];
   let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return list[Math.abs(hash) % list.length];
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return SENDER_ACCENTS[Math.abs(hash) % SENDER_ACCENTS.length] ?? 'text-warm-highlight';
 }
 
 export const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
   messages,
+  findings = [],
   highlightedMessageId,
   searchQuery,
+  selectedParticipant = 'all',
+  onSelectMessage,
 }) => {
   const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  // Map messageId -> findings linked to that message
+  const findingsByMessageId = useMemo(() => {
+    const map = new Map<string, FindingItem[]>();
+    for (const f of findings) {
+      const existing = map.get(f.sourceMessageId);
+      if (existing) {
+        existing.push(f);
+      } else {
+        map.set(f.sourceMessageId, [f]);
+      }
+    }
+    return map;
+  }, [findings]);
+
+  // Filter visible messages if participant filter is active (always keep highlighted message visible)
+  const visibleMessages = useMemo(() => {
+    if (!selectedParticipant || selectedParticipant === 'all') {
+      return messages;
+    }
+    return messages.filter(
+      (m) => m.sender === selectedParticipant || m.id === highlightedMessageId
+    );
+  }, [messages, selectedParticipant, highlightedMessageId]);
 
   useEffect(() => {
     if (highlightedMessageId) {
@@ -50,10 +74,14 @@ export const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
 
   const highlightText = (text: string, query: string) => {
     if (!query.trim()) return text;
-    const parts = text.split(new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'));
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const parts = text.split(new RegExp(`(${escaped})`, 'gi'));
     return parts.map((part, i) =>
       part.toLowerCase() === query.toLowerCase() ? (
-        <mark key={i} className="bg-amber-200 text-amber-900 rounded px-0.5 font-semibold">
+        <mark
+          key={i}
+          className="bg-ember/30 text-warm-highlight rounded px-1 py-0.2 font-semibold border border-ember/40"
+        >
           {part}
         </mark>
       ) : (
@@ -63,79 +91,115 @@ export const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col h-full max-h-[750px] overflow-hidden">
-      {/* Header bar styled like WhatsApp Chat Header */}
-      <div className="p-3 bg-slate-100/90 border-b border-slate-200 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold text-xs shadow-2xs">
-            WA
+    <section
+      aria-label="Conversation transcript timeline"
+      className="bg-surface rounded-[var(--radius-panel)] border-specular flex flex-col h-full max-h-[760px] overflow-hidden"
+    >
+      {/* Transcript Header */}
+      <div className="px-4 py-3.5 bg-elevated/80 border-b border-border-default flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-[var(--radius-icon)] bg-ember/15 border border-ember/35 text-ember-hover flex items-center justify-center font-bold text-xs">
+            <MessageSquare className="w-4 h-4" aria-hidden="true" />
           </div>
           <div>
-            <h3 className="text-xs font-bold text-slate-900 leading-tight">
-              Chat Transcript Timeline
+            <h3 className="text-xs sm:text-sm font-bold text-text-primary leading-tight">
+              Chronological Transcript Timeline
             </h3>
-            <span className="text-[10px] text-slate-500">
-              {messages.length} messages loaded
+            <span className="text-[11px] text-text-secondary">
+              Showing <strong className="font-mono text-text-primary">{visibleMessages.length}</strong> of{' '}
+              <strong className="font-mono text-text-primary">{messages.length}</strong> messages
             </span>
           </div>
         </div>
+
+        <div className="flex items-center gap-1.5">
+          <Badge
+            variant="ember"
+            mono
+            icon={<Sparkles className="w-2.5 h-2.5" />}
+          >
+            {findingsByMessageId.size} signal messages
+          </Badge>
+        </div>
       </div>
 
-      {/* WhatsApp Chat Wallpaper Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2.5 bg-[#efeae2] scrollbar-thin">
-        {messages.map((msg) => {
-          const isHighlighted = highlightedMessageId === msg.id;
-          const senderColor = getSenderColor(msg.sender);
+      {/* Message Stream */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-canvas bg-circuit-grid scrollbar-obsidian">
+        {visibleMessages.length === 0 ? (
+          <EmptyState
+            title="No messages for this sender"
+            description="Reset the participant filter to view the full conversation timeline."
+          />
+        ) : (
+          visibleMessages.map((msg, idx) => {
+            const isHighlighted = highlightedMessageId === msg.id;
+            const linkedFindings = findingsByMessageId.get(msg.id) ?? [];
+            const hasFindings = linkedFindings.length > 0;
+            const senderColor = getSenderColor(msg.sender);
 
-          return (
-            <div
-              key={msg.id}
-              ref={(el) => {
-                if (el) messageRefs.current.set(msg.id, el);
-                else messageRefs.current.delete(msg.id);
-              }}
-              className={`flex flex-col transition-all duration-300 ${
-                isHighlighted ? 'scale-[1.01]' : ''
-              }`}
-            >
+            return (
               <div
-                className={`max-w-[85%] rounded-lg p-2.5 shadow-2xs text-xs relative ${
+                key={msg.id}
+                ref={(el) => {
+                  if (el) messageRefs.current.set(msg.id, el);
+                  else messageRefs.current.delete(msg.id);
+                }}
+                onClick={() => onSelectMessage?.(msg.id)}
+                className={`group rounded-2xl p-3.5 transition-all duration-200 relative ${
                   isHighlighted
-                    ? 'bg-emerald-50 border-2 border-emerald-500 ring-2 ring-emerald-300/60'
-                    : 'bg-white border border-slate-200/60'
-                }`}
+                    ? 'bg-elevated border-2 border-ember shadow-[var(--shadow-ember)] ring-2 ring-ember/25'
+                    : hasFindings
+                    ? 'bg-surface/95 border border-border-strong hover:border-ember/40'
+                    : 'bg-surface/75 border border-border-default hover:border-border-strong'
+                } ${onSelectMessage ? 'cursor-pointer' : ''}`}
               >
-                {/* Highlight Badge */}
+                {/* Traced Source Message Pin */}
                 {isHighlighted && (
-                  <div className="absolute -top-2.5 right-2 px-2 py-0.2 rounded-full bg-emerald-600 text-white text-[9px] font-bold flex items-center gap-1 shadow-2xs">
-                    <Pin className="w-2.5 h-2.5" />
-                    Source Message
+                  <div className=" -top-2.5 right-3 absolute px-2.5 py-0.5 rounded-full bg-ember text-text-primary text-[10px] font-bold flex items-center gap-1 shadow-[var(--shadow-ember)]">
+                    <Pin className="w-2.5 h-2.5" aria-hidden="true" />
+                    <span>Traced Source Message</span>
                   </div>
                 )}
 
-                {/* Author Name */}
-                <div className="flex items-baseline justify-between gap-2 mb-0.5">
-                  <span className={`text-[11px] font-bold ${senderColor}`}>
-                    {highlightText(msg.sender, searchQuery)}
-                  </span>
+                {/* Sender & Timestamp Row */}
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-[10px] font-mono text-text-muted">
+                      #{idx + 1}
+                    </span>
+                    <span className={`text-xs font-bold truncate ${senderColor}`}>
+                      {highlightText(msg.sender, searchQuery)}
+                    </span>
+                  </div>
+
+                  {msg.timestamp && (
+                    <span className="text-[10px] text-text-muted font-mono shrink-0">
+                      {msg.timestamp}
+                    </span>
+                  )}
                 </div>
 
-                {/* Body Text */}
-                <p className="text-slate-800 text-[11px] leading-relaxed whitespace-pre-wrap">
+                {/* Message Text */}
+                <p className="text-text-primary/95 text-xs leading-relaxed whitespace-pre-wrap">
                   {highlightText(msg.text, searchQuery)}
                 </p>
 
-                {/* Timestamp */}
-                {msg.timestamp && (
-                  <div className="text-[9px] text-slate-400 font-mono text-right mt-1">
-                    {msg.timestamp.split(' ')[1] || msg.timestamp}
+                {/* Associated Findings Indicator Row */}
+                {hasFindings && (
+                  <div className="mt-2.5 pt-2 border-t border-border-subtle flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] font-mono text-text-muted mr-1">
+                      Extracted:
+                    </span>
+                    {linkedFindings.map((f) => (
+                      <CategoryBadge key={f.id} category={f.category} />
+                    ))}
                   </div>
                 )}
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
-    </div>
+    </section>
   );
 };
