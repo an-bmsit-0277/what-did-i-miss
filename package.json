@@ -5,11 +5,18 @@
   "type": "module",
   "workspaces": [
     "packages/engine",
-    "frontend"
+    "frontend",
+    "server"
   ],
   "scripts": {
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:server": "npm run dev --workspace=server",
     "test": "npm test --workspaces --if-present",
+    "test:engine": "npm test --workspace=@missed/engine",
+    "test:frontend": "npm test --workspace=frontend",
+    "test:server": "npm test --workspace=server",
     "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
     "build:extension": "node scripts/build-extension.mjs"
   },
@@ -17,4 +24,3 @@
     "esbuild": "^0.28.2"
   }
 }
-

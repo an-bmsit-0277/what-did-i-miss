@@ -89,69 +89,52 @@ flowchart TD
 
 | Layer | Technology | Details / Rationale |
 | :--- | :--- | :--- |
-| **Frontend Framework** | React 19 (`react`, `react-dom`) | Modern component architecture, functional hooks, memoized analysis pipelines |
-| **Language** | TypeScript 5.8+ | Strict type checking across message models, parsers, and findings |
-| **Build Tool & Bundler** | Vite 8 | Fast ESM development server and optimized production packaging |
-| **Styling** | Tailwind CSS v4 (`@tailwindcss/vite`) | Utility-first styling with WhatsApp-inspired neutral aesthetics |
-| **Icons** | Lucide React (`lucide-react`) | Lightweight SVG icons for priorities, tabs, and action states |
-| **Browser Extension** | Chrome Manifest V3 | Side panel integration (`sidePanel`), active tab messaging (`scripting`) |
-| **Automated Testing** | Node.js Test Runner (`node:test`) | Native Node test runner with `--experimental-strip-types` (zero test dependencies) |
-| **Static Analysis** | Oxlint (`oxlint`) | Ultra-fast Rust-based linter with 116 rules |
-| **Backend & Database** | None | 100% Client-Side. No remote server, database, or analytics |
+| **Monorepo Workspaces** | npm Workspaces | Unified scripts across `packages/engine`, `frontend`, and `server` |
+| **Shared Analysis Engine** | `@missed/engine` (TypeScript) | Zero-dependency deterministic parsers, regex detectors, and recap generator |
+| **Frontend Framework** | React 19 + Vite 8 + Tailwind CSS v4 | Modern component architecture and fast ESM build pipeline |
+| **Backend API (`server/`)** | Hono + TypeScript + Zod | Strict runtime request/response validation, rate limiting, and bearer auth middleware |
+| **Database & Auth** | Supabase Auth + PostgreSQL (RLS) | Per-user tenant isolation via `auth.uid() = owner_id` Row-Level Security policies |
+| **Browser Extension** | Chrome Manifest V3 (`extension/`) | Side panel integration (`sidePanel`), active tab messaging (`scripting`) |
+| **Automated Testing** | Node.js Test Runner (`node:test`) | Native Node test runner with `--experimental-strip-types` (47 passing tests) |
+| **Static Analysis** | Oxlint + TypeScript (`tsc --noEmit`) | Zero-warning linting and strict workspace-wide typechecking |
 
 ---
 
 ## Quick-Start Guide
 
 ### Prerequisites
-- Node.js (v20 or higher recommended, Node v24 supported)
+- Node.js (v22.6+ or v24+ recommended for `--experimental-strip-types`)
 - npm (v10 or higher)
 
-### Setup & Development
+### Setup & Development (From Repository Root)
 
-#### Windows (PowerShell)
-```powershell
-# Navigate to the frontend directory
-cd frontend
-
-# Install dependencies
-npm install
-
-# Start local development server
-npm run dev
-
-# Run unit tests
-npm test
-
-# Run linter
-npm run lint
-
-# Build for production
-npm run build
-```
-
-#### macOS / Linux (Bash)
 ```bash
-# Navigate to the frontend directory
-cd frontend
-
-# Install dependencies
+# 1. Install all workspace dependencies
 npm install
 
-# Start local development server
-npm run dev
+# 2. (Optional) Copy environment template for backend configuration
+cp .env.example .env
 
-# Run unit tests
+# 3. Start the frontend development server (http://localhost:5173)
+npm run dev:frontend
+
+# 4. Start the backend API server (defaults to port 3001; set STORAGE_MODE=memory for offline dev)
+npm run dev:server
+
+# 5. Run all automated tests across @missed/engine, frontend, and server
 npm test
 
-# Run linter
+# 6. Run workspace-wide linting and strict TypeScript typechecking
 npm run lint
+npm run typecheck
 
-# Build for production
+# 7. Build all workspaces and the Chrome MV3 extension bundle
 npm run build
+npm run build:extension
 ```
 
-Once `npm run dev` starts, open the local URL (typically `http://localhost:5173/`) in your browser to view the application.
+### Database Migration Setup (Supabase PostgreSQL)
+To provision the database schema and Row-Level Security policies in a live Supabase project, execute [`server/migrations/001_initial_schema.sql`](server/migrations/001_initial_schema.sql) in the Supabase SQL Editor or via `psql`, then set `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` in `.env`.
 
 ---
 
@@ -247,45 +230,24 @@ The application accepts both `.json` and `.txt` files up to 10MB in size:
 
 ## Testing & Verification
 
-The project includes an automated unit test suite verifying parsers, heuristics, and source-message integrity.
-
-### Automated Test Suite (`frontend/tests/`)
-Tests run using the native Node.js test runner (`node:test`) with TypeScript type-stripping (`--experimental-strip-types`), eliminating heavyweight external testing dependencies:
+The project includes automated test suites across all three workspaces (`packages/engine`, `frontend`, and `server`), running via the native Node.js test runner (`node:test`) with TypeScript type-stripping (`--experimental-strip-types`):
 
 ```bash
 npm test
+npm run test:engine
+npm run test:frontend
+npm run test:server
 ```
 
-#### Actual Test Results (21 passing tests across 4 suites)
-```text
-✔ detectUrgency - identifies critical and blocker keywords (1.8ms)
-✔ detectDecision - identifies approval and consensus statements (0.5ms)
-✔ detectDeadline - extracts due dates and times (0.8ms)
-✔ detectActionItem - extracts tasks and assignees (0.9ms)
-✔ detectMention - identifies direct @mentions and queries (0.2ms)
-✔ analyzeConversation - aggregates findings and generates recap stats (2.0ms)
-✔ parseJsonContent - valid array of messages (2.1ms)
-✔ parseJsonContent - envelope object with messages array (0.4ms)
-✔ parseJsonContent - Slack export format with epoch ts and user_profile (1.9ms)
-✔ parseJsonContent - missing timestamps triggers non-blocking warning (0.3ms)
-✔ parseJsonContent - malformed JSON (0.3ms)
-✔ parseJsonContent - empty string and whitespace (0.2ms)
-✔ parseJsonContent - empty array (0.2ms)
-✔ sourceLinking - all findings in sample conversation link to valid source messages (4.8ms)
-✔ sourceLinking - maintains message link fidelity across custom message streams (0.5ms)
-✔ parseTxtContent - bracketed timestamps with sender (1.5ms)
-✔ parseTxtContent - WhatsApp format export (0.5ms)
-✔ parseTxtContent - Simple colon format without timestamps (0.4ms)
-✔ parseTxtContent - Multi-line message continuation (0.3ms)
-✔ parseTxtContent - Empty file (0.1ms)
-✔ parseTxtContent - Plain unstructured text fallback (0.1ms)
-
-ℹ tests 21 | pass 21 | fail 0 | cancelled 0 | duration ~238ms
-```
+#### Automated Test Coverage (47 passing tests across 3 workspaces)
+- **`@missed/engine` (`packages/engine/tests/` — 8 tests):** Verifies TXT/JSON parsers, missing timestamp handling, oversized file rejection, deterministic detectors, and recap synthesis.
+- **`frontend` (`frontend/tests/` — 21 tests):** Verifies heuristic detectors, JSON/TXT format parsers, edge-case inputs, and source-message deep-linking fidelity.
+- **`server` (`server/tests/` — 18 tests):** Verifies unauthenticated (`401`) and expired/revoked token rejection, cross-user ID tampering protection (`404`), strict Zod validation (`.strict()`), 10 MiB payload limits (`413`), malformed import handling (`422`), deterministic `@missed/engine` persistence, atomic rollback on partial save failure, user-scoped privacy settings, dependency-ordered account deletion, rate limiting (`429`), production env guardrails, and SQL migration RLS policy structure.
 
 ### Static Analysis & Build Verification
-- **Linter (`oxlint`):** `Found 0 warnings and 0 errors across 34 files with 116 rules.`
-- **Production Build (`tsc -b && vite build`):** Clean compilation producing optimized static bundles in `frontend/dist/`.
+- **Linter (`npm run lint`):** `0 warnings and 0 errors` across `packages/engine`, `frontend`, and `server`.
+- **Typecheck (`npm run typecheck`):** Strict `tsc --noEmit` across all workspaces.
+- **Production Build (`npm run build && npm run build:extension`):** Compiles `@missed/engine`, `frontend/dist/`, `server/dist/`, and `extension/engine.js`.
 
 ---
 
@@ -297,9 +259,10 @@ npm test
 3. **Single Active Chat Scope:** Ingests and triages one conversation transcript or open chat view at a time; cross-channel aggregated prioritization is not yet supported.
 
 ### Roadmap
-- [ ] **Local WebAssembly Language Models:** Experiment with client-side small language models (via WebGPU / ONNX) for semantic summarization without compromising on-device privacy.
-- [ ] **Multi-Platform Scrapers:** Extend content script prototypes to Slack Web, Discord Web, and Microsoft Teams Web.
-- [ ] **Custom Priority Rules:** Allow users to define custom keywords, project tags, and custom alert phrases.
+- [x] **Phase 1 — Shared Analysis Engine (`@missed/engine`):** Extracted unified deterministic parsers and heuristics across web, extension, and server.
+- [x] **Phase 2 — Backend, Database, Auth & RLS (`server/`):** Hono REST API, Supabase Auth JWT verification, PostgreSQL schema with Row-Level Security, and atomic user-scoped persistence.
+- [ ] **Phase 3–4 — Full-Stack Workspace UI & Auth Integration:** Connect the redesigned Obsidian & Solar Ember frontend workspace to the backend API.
+- [ ] **Phase 5 — Opt-In AI Augmentation:** Per-conversation explicit consent for cloud AI summarization alongside deterministic heuristics.
 
 ---
 
@@ -308,58 +271,45 @@ npm test
 ```text
 What-Did-I-Miss/
 ├── docs/
-│   ├── ARCHITECTURE.md          # System architecture, data flow & trade-offs
-│   ├── REQUIREMENTS.md          # Product requirements (P0/P1/P2 specification)
-│   ├── AI_CONTEXT.md            # Hackathon project context & constraints
-│   └── API.md                   # Internal data contracts documentation
-├── extension/                   # Chrome Manifest V3 extension package
-│   ├── icons/                   # Extension icons (16px, 48px, 128px)
-│   ├── background.js            # Background service worker & side panel launcher
-│   ├── content.js               # WhatsApp Web DOM scraper & highlight injector
-│   ├── manifest.json            # Manifest V3 configuration & permissions
-│   ├── sidepanel.css            # Extension side panel companion styles
-│   ├── sidepanel.html           # Side panel companion markup
-│   └── sidepanel.js             # Side panel controller & messaging bridge
-├── frontend/                    # Web application frontend
+│   ├── ARCHITECTURE.md          # System architecture, monorepo & RLS design
+│   ├── REQUIREMENTS.md          # Product & backend security requirements
+│   ├── AI_CONTEXT.md            # Project context & constraints
+│   └── API.md                   # REST API & @missed/engine contracts
+├── packages/
+│   └── engine/                  # Shared deterministic analysis engine (@missed/engine)
+│       ├── src/
+│       │   ├── heuristics/      # analyzer.ts, detectors.ts, recapGenerator.ts
+│       │   ├── parsers/         # index.ts, jsonParser.ts, txtParser.ts
+│       │   ├── sampleConversation.ts
+│       │   ├── types.ts
+│       │   └── index.ts
+│       └── tests/               # Shared engine unit tests (8 tests)
+├── server/                      # Backend API & persistence workspace (Hono + Supabase)
+│   ├── migrations/
+│   │   └── 001_initial_schema.sql # PostgreSQL tables, composite FKs & RLS policies
+│   ├── src/
+│   │   ├── db/                  # AuthAdapter, DataRepository, Supabase & test adapters
+│   │   ├── lib/                 # Validated env, ApiError handler & byte-limited body reader
+│   │   ├── middleware/          # requireAuth, sliding-window rate limiter & request context
+│   │   ├── routes/              # /api/auth, /api/conversations, /api/tasks, /api/settings
+│   │   ├── schemas/             # Strict Zod request & response schemas
+│   │   ├── app.ts               # Hono application factory
+│   │   └── index.ts             # HTTP server entrypoint
+│   └── tests/                   # Backend security, API & SQL RLS tests (18 tests)
+├── frontend/                    # React 19 + Vite 8 web application
 │   ├── src/
 │   │   ├── components/          # Modular React UI components
-│   │   │   ├── AboutModal.tsx       # Architecture & privacy disclosure modal
-│   │   │   ├── CompactFilter.tsx    # Search input and sender filter controls
-│   │   │   ├── ConversationBar.tsx  # Active chat metadata and action bar
-│   │   │   ├── Dropzone.tsx         # Drag-and-drop file ingestion area
-│   │   │   ├── ErrorBanner.tsx      # Resilient error and warning alert banners
-│   │   │   ├── ImportantView.tsx    # P0 alerts, blockers, decisions & deadlines
-│   │   │   ├── MissedHeader.tsx     # App header, privacy badges & actions
-│   │   │   ├── NavigationTabs.tsx   # Overview, Tasks, and Important tab bar
-│   │   │   ├── OverviewView.tsx     # Executive recap stats, bullets & preview
-│   │   │   ├── SourceDrawer.tsx     # Side-panel source message inspection drawer
-│   │   │   ├── SummaryCounters.tsx  # Urgency, tasks, decisions & count metrics
-│   │   │   ├── TasksView.tsx        # Interactive task checklist with checkboxes
-│   │   │   └── TranscriptViewer.tsx # Message timeline with deep-link highlighting
-│   │   ├── data/
-│   │   │   └── sampleConversation.ts # Built-in incident dataset
-│   │   ├── heuristics/          # Deterministic analysis engine
-│   │   │   ├── analyzer.ts          # Core analysis coordinator & scoring
-│   │   │   ├── detectors.ts         # Regex detector functions
-│   │   │   └── recapGenerator.ts    # Topical summary & bullet generator
-│   │   ├── parsers/             # Resilient chat export parsers
-│   │   │   ├── index.ts             # Parser entry point & format router
-│   │   │   ├── jsonParser.ts        # JSON array, envelope & Slack parser
-│   │   │   └── txtParser.ts         # WhatsApp, bracketed & TXT parser
-│   │   ├── types/               # TypeScript interfaces & data contracts
+│   │   ├── heuristics/          # Re-exports from @missed/engine
+│   │   ├── parsers/             # Re-exports from @missed/engine
+│   │   ├── types/               # Re-exports from @missed/engine
 │   │   ├── App.tsx              # Application layout & state coordinator
 │   │   └── main.tsx             # React entry point
-│   ├── tests/                   # Automated unit test suite
-│   │   ├── heuristics.test.ts   # Heuristic detector & scoring unit tests
-│   │   ├── jsonParser.test.ts   # JSON parser & malformed file tests
-│   │   ├── sourceLinking.test.ts# Source message deep-linking verification
-│   │   └── txtParser.test.ts    # TXT parser & continuation tests
-│   ├── package.json             # Scripts & dependencies
-│   └── vite.config.ts           # Vite bundler configuration
+│   └── tests/                   # Frontend parser, heuristic & deep-link tests (21 tests)
+├── extension/                   # Chrome Manifest V3 extension package
+├── scripts/
+│   └── build-extension.mjs      # Bundles @missed/engine into extension/engine.js
 ├── .env.example                 # Environment variables template
-├── .gitignore                   # Git ignore specifications
-├── AI_INSTRUCTIONS.md           # Development guidelines & constraints
-├── prompt.md                    # Prompt log
+├── package.json                 # Root npm workspaces configuration
 └── README.md                    # Project documentation
 ```
 
