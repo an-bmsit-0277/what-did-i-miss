@@ -147,6 +147,11 @@ async function request<T>(
     headers.set('Authorization', `Bearer ${token}`);
   }
 
+const isDev = Boolean(
+  (typeof import.meta !== 'undefined' && (import.meta as any).env?.DEV) ||
+  (typeof globalThis !== 'undefined' && (globalThis as any).process?.env?.NODE_ENV === 'development')
+);
+
   let response: Response;
   try {
     response = await fetch(url, {
@@ -154,6 +159,9 @@ async function request<T>(
       headers,
     });
   } catch (netErr: any) {
+    if (isDev) {
+      console.warn(`[API Client] Connection error fetching ${url}:`, netErr?.message || netErr);
+    }
     throw new ApiError(
       'NETWORK_UNAVAILABLE',
       0,
@@ -163,20 +171,36 @@ async function request<T>(
   }
 
   if (!response.ok) {
-    let errorData: ApiErrorResponse | undefined;
+    let errorData: any;
     try {
       errorData = await response.json();
     } catch {
       // Body wasn't JSON
     }
 
-    const code = errorData?.error?.code || `HTTP_${response.status}`;
+    // Backend returns { error: ErrorCode, message: string, requestId?: string, details?: unknown }
+    // Support both flattened and nested error shapes
+    const code =
+      (typeof errorData?.error === 'string'
+        ? errorData.error
+        : errorData?.error?.code) ||
+      errorData?.code ||
+      `HTTP_${response.status}`;
+
     const message =
-      errorData?.error?.message ||
+      (typeof errorData?.message === 'string'
+        ? errorData.message
+        : errorData?.error?.message) ||
       response.statusText ||
       `Request failed with status ${response.status}`;
 
-    throw new ApiError(code, response.status, message, errorData?.error?.details);
+    const details = errorData?.details || errorData?.error?.details;
+
+    if (isDev) {
+      console.warn(`[API Client] ${options.method || 'GET'} ${url} -> ${response.status} (${code}): ${message}`);
+    }
+
+    throw new ApiError(code, response.status, message, details);
   }
 
   return response.json() as Promise<T>;

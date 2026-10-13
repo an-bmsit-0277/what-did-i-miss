@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Flame, Eye, EyeOff, ArrowRight, Sparkles, Mail, Lock } from 'lucide-react';
-import { Button, Card, StatusBanner } from '../components/ui';
+import { Button, StatusBanner } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { getSafeRedirect } from '../config/env';
 
@@ -57,32 +57,29 @@ export const LoginPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-void text-text-primary flex flex-col justify-center items-center p-4 sm:p-6 bg-circuit-grid">
       {/* Brand Header */}
-      <div className="mb-6 text-center space-y-2">
+      <div className="mb-6 text-center space-y-1.5 motion-fade-up">
         <Link
           to="/"
           className="inline-flex items-center gap-2 group focus-ember rounded-lg"
         >
-          <div className="w-10 h-10 rounded-[var(--radius-icon)] bg-ember/15 border border-ember/40 flex items-center justify-center text-ember-hover group-hover:bg-ember group-hover:text-text-primary transition-colors shadow-[0_0_20px_rgba(255,77,28,0.25)]">
-            <Flame className="w-5 h-5" />
+          <div className="w-9 h-9 rounded-[var(--radius-icon)] bg-ember/15 border border-ember/35 flex items-center justify-center text-ember-hover group-hover:bg-ember group-hover:text-text-primary transition-colors shadow-[0_0_16px_rgba(255,77,28,0.2)]">
+            <Flame className="w-4.5 h-4.5" />
           </div>
           <span className="font-serif font-semibold text-xl tracking-tight text-text-primary">
             Missed<span className="text-ember-hover">.</span>
           </span>
         </Link>
-        <p className="text-xs text-text-secondary">
+        <p className="text-[11px] sm:text-xs text-text-muted">
           Sign in to access your saved conversations and tasks
         </p>
       </div>
 
       {/* Main Login Card */}
-      <Card
-        variant="featured"
-        padding="lg"
-        spotlight
-        className="w-full max-w-md border-specular shadow-[var(--shadow-elevated)]"
+      <div
+        className="w-full max-w-[400px] rounded-2xl bg-[#0E0C0A]/95 border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.65)] p-6 sm:p-7 motion-scale-in"
       >
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          <div className="space-y-1 mb-2">
+          <div className="space-y-1 mb-1">
             <h1 className="font-serif text-2xl font-normal text-text-primary tracking-tight">
               Welcome back
             </h1>
@@ -95,6 +92,7 @@ export const LoginPage: React.FC = () => {
           {(validationError || authError) && (
             <StatusBanner
               tone="error"
+              title={validationError ? 'Validation Notice' : 'Sign-In Error'}
               message={validationError || authError || 'Failed to sign in.'}
               onDismiss={() => {
                 setValidationError(null);
@@ -107,7 +105,7 @@ export const LoginPage: React.FC = () => {
           <div className="space-y-1.5">
             <label
               htmlFor="login-email"
-              className="block text-xs font-semibold text-text-secondary"
+              className="block text-[11px] font-medium text-text-secondary uppercase tracking-wider"
             >
               Email Address
             </label>
@@ -127,7 +125,7 @@ export const LoginPage: React.FC = () => {
                   if (validationError) setValidationError(null);
                 }}
                 placeholder="you@company.com"
-                className="w-full pl-9 pr-3.5 py-2.5 rounded-[var(--radius-control)] bg-input border border-border-default hover:border-border-strong text-text-primary placeholder:text-text-dim text-xs focus-ember transition-colors disabled:opacity-60"
+                className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-[#141210] border border-white/[0.08] hover:border-white/[0.14] text-text-primary placeholder:text-text-dim text-xs focus-ember transition-colors disabled:opacity-60"
                 aria-invalid={Boolean(validationError || authError)}
               />
             </div>
@@ -137,7 +135,7 @@ export const LoginPage: React.FC = () => {
           <div className="space-y-1.5">
             <label
               htmlFor="login-password"
-              className="block text-xs font-semibold text-text-secondary"
+              className="block text-[11px] font-medium text-text-secondary uppercase tracking-wider"
             >
               Password
             </label>
@@ -157,7 +155,7 @@ export const LoginPage: React.FC = () => {
                   if (validationError) setValidationError(null);
                 }}
                 placeholder="••••••••••••"
-                className="w-full pl-9 pr-10 py-2.5 rounded-[var(--radius-control)] bg-input border border-border-default hover:border-border-strong text-text-primary placeholder:text-text-dim text-xs focus-ember transition-colors disabled:opacity-60"
+                className="w-full pl-9 pr-10 py-2 rounded-xl bg-[#141210] border border-white/[0.08] hover:border-white/[0.14] text-text-primary placeholder:text-text-dim text-xs focus-ember transition-colors disabled:opacity-60"
                 aria-invalid={Boolean(validationError || authError)}
               />
               <button
@@ -179,7 +177,7 @@ export const LoginPage: React.FC = () => {
               variant="primary"
               size="md"
               pill
-              className="w-full justify-center"
+              className="w-full justify-center shadow-[0_2px_14px_rgba(255,82,27,0.25)] hover:shadow-[0_4px_20px_rgba(255,82,27,0.4)]"
               loading={isSubmitting}
               rightIcon={<ArrowRight className="w-4 h-4" />}
             >
@@ -188,7 +186,7 @@ export const LoginPage: React.FC = () => {
           </div>
 
           {/* Navigation Links */}
-          <div className="pt-3 border-t border-border-default space-y-2 text-xs">
+          <div className="pt-3 border-t border-white/[0.07] space-y-2 text-xs">
             <div className="flex items-center justify-between">
               <span className="text-text-secondary">New to Missed.?</span>
               <Link
@@ -211,7 +209,7 @@ export const LoginPage: React.FC = () => {
             </div>
           </div>
         </form>
-      </Card>
+      </div>
 
       {/* Back to Home */}
       <div className="mt-6 text-center">

@@ -245,7 +245,81 @@ body {
 }
 
 /* ============================================================================
-   8. Reduced Motion Accessibility Support
+   8. Deliberate Cinematic Motion & Transition Utilities
+   ============================================================================ */
+@keyframes editorialFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes editorialScaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes subtleAmbientPulse {
+  0%, 100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.motion-fade-up {
+  animation: editorialFadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.motion-scale-in {
+  animation: editorialScaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.motion-delay-1 {
+  animation-delay: 0.06s;
+}
+
+.motion-delay-2 {
+  animation-delay: 0.12s;
+}
+
+.motion-delay-3 {
+  animation-delay: 0.18s;
+}
+
+.motion-card-lift {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.motion-card-lift:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 82, 27, 0.35);
+  box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.7), 0 0 20px rgba(255, 82, 27, 0.12);
+}
+
+.motion-interactive {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.motion-interactive:active {
+  transform: scale(0.98);
+}
+
+/* ============================================================================
+   9. Reduced Motion Accessibility Support
    ============================================================================ */
 @media (prefers-reduced-motion: reduce) {
   *,

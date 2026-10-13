@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Flame, Eye, EyeOff, ArrowRight, CheckCircle2, Mail, Lock } from 'lucide-react';
-import { Button, Card, StatusBanner } from '../components/ui';
+import { Button, StatusBanner } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 
 export const SignUpPage: React.FC = () => {
@@ -71,37 +71,34 @@ export const SignUpPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-void text-text-primary flex flex-col justify-center items-center p-4 sm:p-6 bg-circuit-grid">
       {/* Brand Header */}
-      <div className="mb-6 text-center space-y-2">
+      <div className="mb-6 text-center space-y-1.5 motion-fade-up">
         <Link
           to="/"
           className="inline-flex items-center gap-2 group focus-ember rounded-lg"
         >
-          <div className="w-10 h-10 rounded-[var(--radius-icon)] bg-ember/15 border border-ember/40 flex items-center justify-center text-ember-hover group-hover:bg-ember group-hover:text-text-primary transition-colors shadow-[0_0_20px_rgba(255,77,28,0.25)]">
-            <Flame className="w-5 h-5" />
+          <div className="w-9 h-9 rounded-[var(--radius-icon)] bg-ember/15 border border-ember/35 flex items-center justify-center text-ember-hover group-hover:bg-ember group-hover:text-text-primary transition-colors shadow-[0_0_16px_rgba(255,77,28,0.2)]">
+            <Flame className="w-4.5 h-4.5" />
           </div>
           <span className="font-serif font-semibold text-xl tracking-tight text-text-primary">
             Missed<span className="text-ember-hover">.</span>
           </span>
         </Link>
-        <p className="text-xs text-text-secondary">
+        <p className="text-[11px] sm:text-xs text-text-muted">
           Create your personal conversation catch-up workspace
         </p>
       </div>
 
       {/* Main Card */}
-      <Card
-        variant="featured"
-        padding="lg"
-        spotlight
-        className="w-full max-w-md border-specular shadow-[var(--shadow-elevated)]"
+      <div
+        className="w-full max-w-[420px] rounded-2xl bg-[#0E0C0A]/95 border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.65)] p-6 sm:p-7 motion-scale-in"
       >
         {confirmationSentEmail ? (
           /* Email Confirmation Required Notice */
-          <div className="space-y-5 text-center py-2">
-            <div className="w-12 h-12 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center">
-              <CheckCircle2 className="w-6 h-6" />
+          <div className="space-y-4 text-center py-2">
+            <div className="w-11 h-11 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center">
+              <CheckCircle2 className="w-5 h-5" />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <h2 className="font-serif text-xl font-normal text-text-primary">
                 Verify Your Email Address
               </h2>
@@ -109,14 +106,14 @@ export const SignUpPage: React.FC = () => {
                 We sent a confirmation link to{' '}
                 <strong className="text-text-primary font-mono">{confirmationSentEmail}</strong>.
               </p>
-              <p className="text-xs text-text-muted leading-relaxed">
+              <p className="text-[11px] text-text-muted leading-relaxed">
                 Please check your inbox and click the verification link to activate your account, then log in.
               </p>
             </div>
 
             <div className="pt-2 flex flex-col gap-2">
               <Link to="/login" className="w-full">
-                <Button variant="primary" size="md" pill className="w-full">
+                <Button variant="primary" size="md" pill className="w-full shadow-[0_2px_14px_rgba(255,82,27,0.25)]">
                   Proceed to Log In
                 </Button>
               </Link>
@@ -129,8 +126,8 @@ export const SignUpPage: React.FC = () => {
           </div>
         ) : (
           /* Sign Up Form */
-          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            <div className="space-y-1 mb-2">
+          <form onSubmit={handleSubmit} className="space-y-3.5" noValidate>
+            <div className="space-y-1 mb-1">
               <h1 className="font-serif text-2xl font-normal text-text-primary tracking-tight">
                 Get started free
               </h1>
@@ -143,6 +140,7 @@ export const SignUpPage: React.FC = () => {
             {(validationError || authError) && (
               <StatusBanner
                 tone="error"
+                title={validationError ? 'Validation Notice' : 'Registration Error'}
                 message={validationError || authError || 'Failed to sign up.'}
                 onDismiss={() => {
                   setValidationError(null);
@@ -155,7 +153,7 @@ export const SignUpPage: React.FC = () => {
             <div className="space-y-1.5">
               <label
                 htmlFor="signup-email"
-                className="block text-xs font-semibold text-text-secondary"
+                className="block text-[11px] font-medium text-text-secondary uppercase tracking-wider"
               >
                 Email Address
               </label>
@@ -175,7 +173,7 @@ export const SignUpPage: React.FC = () => {
                     if (validationError) setValidationError(null);
                   }}
                   placeholder="you@company.com"
-                  className="w-full pl-9 pr-3.5 py-2.5 rounded-[var(--radius-control)] bg-input border border-border-default hover:border-border-strong text-text-primary placeholder:text-text-dim text-xs focus-ember transition-colors disabled:opacity-60"
+                  className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-[#141210] border border-white/[0.08] hover:border-white/[0.14] text-text-primary placeholder:text-text-dim text-xs focus-ember transition-colors disabled:opacity-60"
                   aria-invalid={Boolean(validationError || authError)}
                 />
               </div>
@@ -185,9 +183,9 @@ export const SignUpPage: React.FC = () => {
             <div className="space-y-1.5">
               <label
                 htmlFor="signup-password"
-                className="block text-xs font-semibold text-text-secondary"
+                className="block text-[11px] font-medium text-text-secondary uppercase tracking-wider"
               >
-                Password <span className="text-[10px] text-text-muted">(min. 8 characters)</span>
+                Password <span className="text-[10px] text-text-muted normal-case font-normal">(min. 8 characters)</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-muted">
@@ -205,7 +203,7 @@ export const SignUpPage: React.FC = () => {
                     if (validationError) setValidationError(null);
                   }}
                   placeholder="••••••••••••"
-                  className="w-full pl-9 pr-10 py-2.5 rounded-[var(--radius-control)] bg-input border border-border-default hover:border-border-strong text-text-primary placeholder:text-text-dim text-xs focus-ember transition-colors disabled:opacity-60"
+                  className="w-full pl-9 pr-10 py-2 rounded-xl bg-[#141210] border border-white/[0.08] hover:border-white/[0.14] text-text-primary placeholder:text-text-dim text-xs focus-ember transition-colors disabled:opacity-60"
                   aria-invalid={Boolean(validationError || authError)}
                 />
                 <button
@@ -224,7 +222,7 @@ export const SignUpPage: React.FC = () => {
             <div className="space-y-1.5">
               <label
                 htmlFor="signup-confirm-password"
-                className="block text-xs font-semibold text-text-secondary"
+                className="block text-[11px] font-medium text-text-secondary uppercase tracking-wider"
               >
                 Confirm Password
               </label>
@@ -244,7 +242,7 @@ export const SignUpPage: React.FC = () => {
                     if (validationError) setValidationError(null);
                   }}
                   placeholder="••••••••••••"
-                  className="w-full pl-9 pr-10 py-2.5 rounded-[var(--radius-control)] bg-input border border-border-default hover:border-border-strong text-text-primary placeholder:text-text-dim text-xs focus-ember transition-colors disabled:opacity-60"
+                  className="w-full pl-9 pr-10 py-2 rounded-xl bg-[#141210] border border-white/[0.08] hover:border-white/[0.14] text-text-primary placeholder:text-text-dim text-xs focus-ember transition-colors disabled:opacity-60"
                   aria-invalid={Boolean(validationError || authError)}
                 />
                 <button
@@ -266,7 +264,7 @@ export const SignUpPage: React.FC = () => {
                 variant="primary"
                 size="md"
                 pill
-                className="w-full justify-center"
+                className="w-full justify-center shadow-[0_2px_14px_rgba(255,82,27,0.25)] hover:shadow-[0_4px_20px_rgba(255,82,27,0.4)]"
                 loading={isSubmitting}
                 rightIcon={<ArrowRight className="w-4 h-4" />}
               >
@@ -280,7 +278,7 @@ export const SignUpPage: React.FC = () => {
             </p>
 
             {/* Links */}
-            <div className="pt-3 border-t border-border-default flex items-center justify-between text-xs">
+            <div className="pt-3 border-t border-white/[0.07] flex items-center justify-between text-xs">
               <span className="text-text-secondary">Already registered?</span>
               <Link
                 to="/login"
@@ -291,7 +289,7 @@ export const SignUpPage: React.FC = () => {
             </div>
           </form>
         )}
-      </Card>
+      </div>
 
       {/* Back to Home Link */}
       <div className="mt-6 text-center">

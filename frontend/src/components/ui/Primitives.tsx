@@ -279,36 +279,36 @@ export const StatusBanner: React.FC<StatusBannerProps> = ({
 }) => {
   const toneConfig = {
     error: {
-      container: 'bg-semantic-urgent/12 border-semantic-urgent/40 text-[#FCA5A5]',
+      container: 'bg-semantic-urgent/12 border-semantic-urgent/35 text-[#FCA5A5]',
       icon: <AlertCircle className="w-4 h-4 text-semantic-urgent shrink-0" />,
-      defaultTitle: 'Import Error',
+      defaultTitle: 'Error',
     },
     warning: {
-      container: 'bg-semantic-task/12 border-semantic-task/40 text-[#FDE68A]',
+      container: 'bg-semantic-task/12 border-semantic-task/35 text-[#FDE68A]',
       icon: <AlertTriangle className="w-4 h-4 text-semantic-task shrink-0" />,
-      defaultTitle: 'Format Notice',
+      defaultTitle: 'Notice',
     },
     info: {
-      container: 'bg-semantic-decision/12 border-semantic-decision/35 text-[#BAE6FD]',
+      container: 'bg-semantic-decision/12 border-semantic-decision/30 text-[#BAE6FD]',
       icon: <Info className="w-4 h-4 text-semantic-decision shrink-0" />,
       defaultTitle: 'Info',
     },
     success: {
-      container: 'bg-semantic-local/12 border-semantic-local/35 text-[#A7F3D0]',
+      container: 'bg-semantic-local/12 border-semantic-local/30 text-[#A7F3D0]',
       icon: <CheckCircle2 className="w-4 h-4 text-semantic-local shrink-0" />,
-      defaultTitle: 'Ready',
+      defaultTitle: 'Success',
     },
   }[tone];
 
   return (
     <div
       role={tone === 'error' ? 'alert' : 'status'}
-      className={`rounded-2xl border px-4 py-3 flex items-center justify-between gap-3 ${toneConfig.container}`}
+      className={`rounded-xl border px-3 py-2 flex items-start sm:items-center justify-between gap-2.5 text-xs ${toneConfig.container}`}
     >
-      <div className="flex items-center gap-2.5 min-w-0 text-xs">
-        {toneConfig.icon}
-        <div className="min-w-0">
-          <strong className="font-semibold text-text-primary mr-1.5">
+      <div className="flex items-start sm:items-center gap-2 min-w-0 flex-1">
+        <span className="shrink-0 mt-0.5 sm:mt-0">{toneConfig.icon}</span>
+        <div className="min-w-0 flex-1 break-words leading-relaxed text-[11px] sm:text-xs">
+          <strong className="font-semibold text-text-primary mr-1">
             {title ?? toneConfig.defaultTitle}:
           </strong>
           <span>{message}</span>
@@ -319,7 +319,7 @@ export const StatusBanner: React.FC<StatusBannerProps> = ({
           type="button"
           onClick={onDismiss}
           aria-label="Dismiss alert"
-          className="p-1 rounded-lg text-text-secondary hover:text-text-primary hover:bg-void/40 transition-colors focus-ember cursor-pointer"
+          className="p-1 -mr-1 -mt-0.5 sm:mt-0 rounded-md text-text-secondary hover:text-text-primary hover:bg-void/40 transition-colors focus-ember shrink-0 cursor-pointer"
         >
           <X className="w-3.5 h-3.5" />
         </button>

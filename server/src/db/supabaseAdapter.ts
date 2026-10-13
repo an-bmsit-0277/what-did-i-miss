@@ -226,9 +226,48 @@ export class SupabaseAuthAdapter implements AuthAdapter {
 
   async signIn(email: string, password: string): Promise<AuthSessionResult> {
     const client = this.createAnonClient();
-    const { data, error } = await client.auth.signInWithPassword({ email, password });
+    let data: any;
+    let error: any;
+    try {
+      const res = await client.auth.signInWithPassword({ email, password });
+      data = res.data;
+      error = res.error;
+    } catch (networkErr: any) {
+      throw new ApiError(
+        'UPSTREAM_SERVICE_UNAVAILABLE',
+        503,
+        'Authentication service is currently unreachable. Please check backend network or Supabase status.',
+        networkErr
+      );
+    }
 
-    if (error || !data.user || !data.user.email || !data.session) {
+    if (error) {
+      const msg = error.message?.toLowerCase() ?? '';
+      if (msg.includes('email not confirmed')) {
+        throw new ApiError(
+          'EMAIL_NOT_CONFIRMED',
+          403,
+          'Email address has not been confirmed. Please check your inbox for the verification link.'
+        );
+      }
+      if (msg.includes('rate limit') || error.status === 429) {
+        throw new ApiError(
+          'RATE_LIMITED',
+          429,
+          'Too many sign-in attempts. Please wait a moment and try again.'
+        );
+      }
+      if (msg.includes('fetch') || msg.includes('enotfound') || msg.includes('network') || msg.includes('timeout')) {
+        throw new ApiError(
+          'UPSTREAM_SERVICE_UNAVAILABLE',
+          503,
+          'Authentication service is currently unreachable. Please check backend network or Supabase status.'
+        );
+      }
+      throw new ApiError('UNAUTHORIZED', 401, 'Invalid email or password.');
+    }
+
+    if (!data.user || !data.user.email || !data.session) {
       throw new ApiError('UNAUTHORIZED', 401, 'Invalid email or password.');
     }
 

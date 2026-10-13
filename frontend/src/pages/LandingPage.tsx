@@ -158,7 +158,7 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-7xl w-full mx-auto relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
             {/* Left Column: Oversized Editorial Serif Headline */}
-            <div className="lg:col-span-7 space-y-6 lg:space-y-8">
+            <div className="lg:col-span-7 space-y-6 lg:space-y-8 motion-fade-up">
               <div className="inline-flex items-center gap-2">
                 <span className="px-2.5 py-0.5 rounded-full border border-border-default bg-surface text-[11px] font-mono tracking-widest uppercase text-text-muted">
                   Deterministic Chat Triage
@@ -216,7 +216,7 @@ export const LandingPage: React.FC = () => {
             </div>
 
             {/* Right Column: Abstract Conversation Signal Preview Card */}
-            <div className="lg:col-span-5">
+            <div className="lg:col-span-5 motion-scale-in">
               <div className="relative">
                 {/* Subtle Amber Edge Lighting */}
                 <div
@@ -227,7 +227,7 @@ export const LandingPage: React.FC = () => {
                 <Card
                   variant="featured"
                   padding="none"
-                  className="relative bg-surface/95 border border-border-default shadow-[var(--shadow-elevated)] overflow-hidden"
+                  className="relative bg-surface/95 border border-border-default shadow-[var(--shadow-elevated)] overflow-hidden motion-card-lift"
                 >
                   {/* Card Header */}
                   <div className="px-4 py-3 bg-elevated/90 border-b border-border-default flex items-center justify-between">
@@ -381,7 +381,7 @@ export const LandingPage: React.FC = () => {
           </div>
 
           <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <Card variant="featured" padding="md" className="space-y-2">
+            <Card variant="featured" padding="md" className="space-y-2 motion-card-lift">
               <div className="flex items-center justify-between">
                 <Badge variant="urgent" icon={<AlertTriangle className="w-3 h-3" />}>
                   P0 Outage
@@ -396,7 +396,7 @@ export const LandingPage: React.FC = () => {
               </p>
             </Card>
 
-            <Card variant="default" padding="md" className="space-y-2">
+            <Card variant="default" padding="md" className="space-y-2 motion-card-lift">
               <div className="flex items-center justify-between">
                 <CategoryBadge category="decision" />
                 <span className="text-[10px] font-mono text-text-muted">Sign-off</span>

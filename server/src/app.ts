@@ -72,7 +72,11 @@ export function createApp(options: CreateAppOptions = {}): Hono<AppEnv> {
     cors({
       origin: (origin) => {
         if (!origin) return allowedOrigins[0] ?? 'http://localhost:5173';
-        return allowedOrigins.includes(origin) ? origin : null;
+        if (allowedOrigins.includes(origin)) return origin;
+        if (env.nodeEnv !== 'production' && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+          return origin;
+        }
+        return null;
       },
       allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowHeaders: ['Content-Type', 'Authorization', 'X-Request-Id'],
