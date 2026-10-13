@@ -29,7 +29,6 @@ import {
   WorkspaceSkeleton,
 } from '../components/ui';
 import {
-  Flame,
   Cloud,
   Columns2,
   Smartphone,
@@ -41,7 +40,7 @@ import {
   FolderOpen,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { api, type ConversationSummary, ApiError } from '../api/client';
+import { api, type ConversationSummary, ApiError } from '../api/client.ts';
 
 export const WorkspacePage: React.FC = () => {
   const navigate = useNavigate();
@@ -476,23 +475,26 @@ export const WorkspacePage: React.FC = () => {
       />
 
       {/* =====================================================================
-          Top Authenticated Navigation Header
+          Top Editorial Workspace Navigation Header
          ===================================================================== */}
-      <header className="sticky top-0 z-30 bg-canvas/90 backdrop-blur-xl border-b border-border-default">
+      <header className="sticky top-0 z-30 bg-canvas/90 backdrop-blur-md border-b border-border-default/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
-          {/* Logo & Workspace Title */}
-          <div className="flex items-center gap-3">
-            <Link to="/" className="flex items-center gap-2 focus-ember rounded-lg group">
-              <div className="w-8 h-8 rounded-[var(--radius-icon)] bg-ember/15 border border-ember/40 flex items-center justify-center text-ember-hover group-hover:bg-ember group-hover:text-text-primary transition-colors">
-                <Flame className="w-4 h-4" />
-              </div>
-              <span className="font-extrabold text-sm tracking-tight text-text-primary">
-                Missed<span className="text-ember-hover">.</span> Workspace
+          {/* Subtle Wordmark & Thread Title */}
+          <div className="flex items-center gap-3 min-w-0">
+            <Link to="/" className="flex items-center gap-2 focus-ember rounded py-1 group shrink-0">
+              <span className="w-2 h-2 rounded-full bg-ember shadow-[0_0_8px_rgba(255,82,27,0.6)]" />
+              <span className="font-serif italic text-base tracking-tight text-text-primary">
+                Missed.
+              </span>
+              <span className="text-[10px] font-mono tracking-widest uppercase text-text-muted hidden sm:inline">
+                / workspace
               </span>
             </Link>
 
-            {/* Cloud Status Indicator */}
-            <div className="hidden sm:flex items-center gap-1.5 ml-2">
+            <span className="text-border-strong hidden sm:inline">|</span>
+
+            {/* Cloud Status Indicator Badge */}
+            <div className="flex items-center gap-1.5 shrink-0">
               {isCloudSaved ? (
                 <Badge variant="ember" icon={<Cloud className="w-3 h-3 text-ember-hover" />}>
                   Cloud Saved
@@ -506,7 +508,7 @@ export const WorkspacePage: React.FC = () => {
           </div>
 
           {/* Right Actions: Layout Toggle, User Profile, Sign Out */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Split vs Side Panel Switcher */}
             <div
               role="group"
@@ -539,15 +541,15 @@ export const WorkspacePage: React.FC = () => {
               </button>
             </div>
 
-            {/* User Account Badge */}
+            {/* User Account Badge & Sign Out */}
             <div className="flex items-center gap-2 pl-2 border-l border-border-default">
-              <span className="text-xs text-text-secondary font-mono hidden sm:inline truncate max-w-[140px]">
+              <span className="text-xs text-text-secondary font-mono hidden sm:inline truncate max-w-[130px]">
                 {user?.email}
               </span>
               <button
                 type="button"
                 onClick={() => signOut()}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface hover:bg-elevated border border-border-default text-xs text-text-secondary hover:text-text-primary focus-ember transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface hover:bg-elevated border border-border-default text-xs text-text-secondary hover:text-text-primary focus-ember transition-colors cursor-pointer"
                 title="Sign out of Missed."
               >
                 <LogOut className="w-3.5 h-3.5 text-ember-hover" />
@@ -558,21 +560,21 @@ export const WorkspacePage: React.FC = () => {
         </div>
       </header>
 
-      {/* Cloud Conversations Tray / Selector */}
-      <section className="bg-surface/60 border-b border-border-default px-4 sm:px-6 py-2.5">
+      {/* Cloud Conversations Rail */}
+      <section className="bg-surface/50 border-b border-border-default/80 px-4 sm:px-6 py-2">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-text-muted shrink-0 flex items-center gap-1">
-              <FolderOpen className="w-3 h-3" />
-              Saved Threads:
+          <div className="flex items-center gap-2 overflow-x-auto py-0.5 scrollbar-none">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-text-muted shrink-0 flex items-center gap-1">
+              <FolderOpen className="w-3 h-3 text-ember-hover" />
+              Threads:
             </span>
 
             {isLoadingList ? (
-              <span className="text-text-muted text-[11px] animate-pulse">
-                Loading cloud threads...
+              <span className="text-text-muted text-[11px] font-mono animate-pulse">
+                fetching cloud records...
               </span>
             ) : cloudConversations.length === 0 ? (
-              <span className="text-text-muted text-[11px]">
+              <span className="text-text-muted text-[11px] font-mono">
                 No cloud conversations yet. Upload an export below.
               </span>
             ) : (
@@ -582,7 +584,7 @@ export const WorkspacePage: React.FC = () => {
                   onClick={() => loadCloudConversation(c.id)}
                   className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-lg border text-xs cursor-pointer transition-all ${
                     activeCloudId === c.id
-                      ? 'bg-elevated border-ember/50 text-text-primary font-semibold'
+                      ? 'bg-elevated border-ember/50 text-text-primary font-semibold shadow-[0_0_12px_rgba(255,82,27,0.15)]'
                       : 'bg-canvas/80 border-border-default text-text-secondary hover:text-text-primary hover:border-border-strong'
                   }`}
                 >
@@ -640,7 +642,7 @@ export const WorkspacePage: React.FC = () => {
       />
 
       {/* Main Catch-Up Surface */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-2 sm:px-6 py-4 flex items-start justify-center">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-2 sm:px-6 py-4 sm:py-6 flex items-start justify-center">
         {!hasActiveConversation ? (
           <div className="w-full max-w-md my-8">
             <EmptyState
@@ -673,7 +675,7 @@ export const WorkspacePage: React.FC = () => {
         ) : (
           <div className="w-full flex flex-col lg:flex-row items-center lg:items-start justify-center gap-6">
             {/* Primary Catch-Up Side Panel */}
-            <div className="w-full max-w-[420px] bg-surface rounded-[var(--radius-card-lg)] border border-border-default shadow-[var(--shadow-obsidian-lg)] overflow-hidden flex flex-col flex-shrink-0 border-specular">
+            <div className="w-full max-w-[420px] bg-surface rounded-[var(--radius-card-lg)] border border-border-default/90 shadow-[var(--shadow-obsidian-lg)] overflow-hidden flex flex-col flex-shrink-0 border-specular">
               <MissedHeader
                 onRefresh={handleCatchMeUp}
                 onLoadSample={handleLoadSample}
@@ -719,7 +721,7 @@ export const WorkspacePage: React.FC = () => {
                 participants={analysis.recap.participants}
               />
 
-              <div className="max-h-[560px] overflow-y-auto bg-canvas/50 scrollbar-obsidian">
+              <div className="max-h-[560px] overflow-y-auto bg-canvas/40 scrollbar-obsidian">
                 {isAnalyzing || isSyncingCloud ? (
                   <WorkspaceSkeleton />
                 ) : (
@@ -802,11 +804,11 @@ export const WorkspacePage: React.FC = () => {
       />
 
       {/* Footer Account Actions */}
-      <footer className="border-t border-border-default bg-canvas/80 px-4 py-3 text-xs text-text-muted flex items-center justify-between">
+      <footer className="border-t border-border-default/80 bg-canvas/80 px-4 py-3 text-xs text-text-muted flex items-center justify-between">
         <span className="font-mono text-[10px]">
           Authenticated as {user?.email}
         </span>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4 text-xs">
           <button
             type="button"
             onClick={() => setIsAboutOpen(true)}

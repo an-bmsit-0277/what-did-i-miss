@@ -79,7 +79,7 @@ export const SignUpPage: React.FC = () => {
           <div className="w-10 h-10 rounded-[var(--radius-icon)] bg-ember/15 border border-ember/40 flex items-center justify-center text-ember-hover group-hover:bg-ember group-hover:text-text-primary transition-colors shadow-[0_0_20px_rgba(255,77,28,0.25)]">
             <Flame className="w-5 h-5" />
           </div>
-          <span className="font-extrabold text-xl tracking-tight text-text-primary">
+          <span className="font-serif font-semibold text-xl tracking-tight text-text-primary">
             Missed<span className="text-ember-hover">.</span>
           </span>
         </Link>
@@ -102,7 +102,7 @@ export const SignUpPage: React.FC = () => {
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-lg font-bold text-text-primary">
+              <h2 className="font-serif text-xl font-normal text-text-primary">
                 Verify Your Email Address
               </h2>
               <p className="text-xs text-text-secondary leading-relaxed">
@@ -131,7 +131,7 @@ export const SignUpPage: React.FC = () => {
           /* Sign Up Form */
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="space-y-1 mb-2">
-              <h1 className="text-xl font-bold text-text-primary tracking-tight">
+              <h1 className="font-serif text-2xl font-normal text-text-primary tracking-tight">
                 Get started free
               </h1>
               <p className="text-xs text-text-secondary">

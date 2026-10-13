@@ -38,7 +38,8 @@
   --color-border-ember: rgba(255, 82, 27, 0.42);
 
   /* Typography Families */
-  --font-sans: "Inter", "Plus Jakarta Sans", "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Inter", "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Cormorant Garamond", "Playfair Display", "Didot", Georgia, "Times New Roman", serif;
   --font-mono: "JetBrains Mono", "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   /* Radii */
@@ -193,7 +194,58 @@ body {
 }
 
 /* ============================================================================
-   7. Reduced Motion Accessibility Support
+   7. Cinematic Editorial Primitives & Visual Treatments
+   ============================================================================ */
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.bg-cinematic-mesh {
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(255, 82, 27, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(255, 140, 66, 0.05) 0%, transparent 45%),
+    linear-gradient(180deg, #080706 0%, #0C0A09 100%);
+}
+
+.editorial-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(250, 247, 242, 0.12) 20%,
+    rgba(255, 82, 27, 0.3) 50%,
+    rgba(250, 247, 242, 0.12) 80%,
+    transparent 100%
+  );
+}
+
+/* Small Circular Orange Action Control */
+.btn-circle-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  background-color: var(--color-ember);
+  color: #FAF7F2;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 16px rgba(255, 82, 27, 0.35);
+  cursor: pointer;
+}
+
+.btn-circle-action:hover {
+  background-color: var(--color-ember-hover);
+  transform: scale(1.06);
+  box-shadow: 0 0 24px rgba(255, 82, 27, 0.5);
+}
+
+.btn-circle-action:active {
+  transform: scale(0.96);
+}
+
+/* ============================================================================
+   8. Reduced Motion Accessibility Support
    ============================================================================ */
 @media (prefers-reduced-motion: reduce) {
   *,

@@ -307,8 +307,8 @@ export const DemoPage: React.FC = () => {
               <div className="w-8 h-8 rounded-[var(--radius-icon)] bg-ember/15 border border-ember/40 flex items-center justify-center text-ember-hover group-hover:bg-ember group-hover:text-text-primary transition-colors">
                 <Flame className="w-4 h-4" />
               </div>
-              <span className="font-extrabold text-sm tracking-tight text-text-primary">
-                Missed<span className="text-ember-hover">.</span> Demo
+              <span className="font-serif font-semibold text-base tracking-tight text-text-primary">
+                Missed<span className="text-ember-hover">.</span> <span className="font-sans text-xs text-text-muted font-normal ml-1">Demo</span>
               </span>
             </Link>
           </div>
