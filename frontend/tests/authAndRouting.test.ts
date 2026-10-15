@@ -77,6 +77,17 @@ describe('Phase 4A — Frontend Authentication, Routing & Persistence Integratio
       const rateLimitErr = new ApiError('RATE_LIMIT_EXCEEDED', 429, 'Too many requests. Please slow down.');
       assert.equal(rateLimitErr.status, 429);
     });
+
+    it('identifies NETWORK_UNAVAILABLE with actionable server startup instructions', () => {
+      const netErr = new ApiError(
+        'NETWORK_UNAVAILABLE',
+        0,
+        'Backend is not reachable. Start it with `npm run dev:server` and ensure /api/health returns ok.'
+      );
+      assert.equal(netErr.code, 'NETWORK_UNAVAILABLE');
+      assert.ok(netErr.message.includes('npm run dev:server'));
+      assert.ok(netErr.message.includes('/api/health returns ok'));
+    });
   });
 
   describe('4. Routing & Page Architecture File Verification', () => {

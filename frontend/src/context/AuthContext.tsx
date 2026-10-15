@@ -119,7 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           switch (err.code) {
             case 'NETWORK_UNAVAILABLE':
               message =
-                'Unable to connect to the Missed. server. Please check your connection or backend status.';
+                'Backend is not reachable. Start it with `npm run dev:server` and ensure /api/health returns ok.';
               break;
             case 'CONFLICT':
               message = 'An account with this email address already exists. Please sign in instead.';
@@ -172,7 +172,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           switch (err.code) {
             case 'NETWORK_UNAVAILABLE':
               message =
-                'Unable to connect to the Missed. server. Please check your connection or backend status.';
+                'Backend is not reachable. Start it with `npm run dev:server` and ensure /api/health returns ok.';
               break;
             case 'UNAUTHORIZED':
               message = 'Invalid email or password. Please check your credentials and try again.';

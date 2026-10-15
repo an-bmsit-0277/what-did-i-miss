@@ -152,6 +152,9 @@ const isDev = Boolean(
   (typeof globalThis !== 'undefined' && (globalThis as any).process?.env?.NODE_ENV === 'development')
 );
 
+const BACKEND_UNREACHABLE_MESSAGE =
+  'Backend is not reachable. Start it with `npm run dev:server` and ensure /api/health returns ok.';
+
   let response: Response;
   try {
     response = await fetch(url, {
@@ -165,7 +168,7 @@ const isDev = Boolean(
     throw new ApiError(
       'NETWORK_UNAVAILABLE',
       0,
-      'Unable to connect to the Missed. server. Please check your connection or backend status.',
+      BACKEND_UNREACHABLE_MESSAGE,
       netErr
     );
   }
@@ -176,6 +179,23 @@ const isDev = Boolean(
       errorData = await response.json();
     } catch {
       // Body wasn't JSON
+    }
+
+    // Proxy gateway failure or server connection refusal (Vite 502/503/504 or status 0)
+    if (
+      response.status === 502 ||
+      response.status === 504 ||
+      response.status === 0 ||
+      (response.status === 503 && errorData?.error !== 'UPSTREAM_SERVICE_UNAVAILABLE')
+    ) {
+      if (isDev) {
+        console.warn(`[API Client] Backend unreachable via proxy (${response.status}) at ${url}`);
+      }
+      throw new ApiError(
+        'NETWORK_UNAVAILABLE',
+        response.status,
+        BACKEND_UNREACHABLE_MESSAGE
+      );
     }
 
     // Backend returns { error: ErrorCode, message: string, requestId?: string, details?: unknown }

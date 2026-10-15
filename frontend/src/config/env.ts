@@ -19,8 +19,7 @@ const clientEnv: Record<string, string | undefined> = (() => {
 })();
 
 export const VITE_API_URL =
-  (clientEnv.VITE_API_URL as string | undefined)?.replace(/\/+$/, '') ||
-  'http://localhost:3001';
+  (clientEnv.VITE_API_URL as string | undefined)?.replace(/\/+$/, '') || '';
 
 export const VITE_SUPABASE_URL =
   (clientEnv.VITE_SUPABASE_URL as string | undefined)?.replace(/\/+$/, '') ||
@@ -31,15 +30,15 @@ export const VITE_SUPABASE_ANON_KEY =
 
 /**
  * Returns full API URL for a given relative endpoint path.
- * Guarantees base path is `${VITE_API_URL}/api/...`.
+ * When VITE_API_URL is unset, returns relative /api/... path to leverage Vite dev proxy.
  */
 export function getApiUrl(path: string): string {
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   // If path already starts with /api/, avoid duplicate prefix
   if (cleanPath.startsWith('/api/')) {
-    return `${VITE_API_URL}${cleanPath}`;
+    return VITE_API_URL ? `${VITE_API_URL}${cleanPath}` : cleanPath;
   }
-  return `${VITE_API_URL}/api${cleanPath}`;
+  return VITE_API_URL ? `${VITE_API_URL}/api${cleanPath}` : `/api${cleanPath}`;
 }
 
 /**
