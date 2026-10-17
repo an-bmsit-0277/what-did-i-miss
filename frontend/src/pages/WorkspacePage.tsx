@@ -38,6 +38,10 @@ import {
   Upload,
   Plus,
   FolderOpen,
+  MessageSquare,
+  Settings,
+  ArrowRight,
+  Flame,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api, type ConversationSummary, ApiError } from '../api/client.ts';
@@ -82,6 +86,8 @@ export const WorkspacePage: React.FC = () => {
   const [error, setError] = useState<string | undefined>(undefined);
   const [warning, setWarning] = useState<string | undefined>(undefined);
   const [isAboutOpen, setIsAboutOpen] = useState<boolean>(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [activeNav, setActiveNav] = useState<'conversations' | 'import' | 'settings'>('conversations');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState<string>('');
   const [isDeletingAccount, setIsDeletingAccount] = useState<boolean>(false);
@@ -465,7 +471,10 @@ export const WorkspacePage: React.FC = () => {
     searchQuery.trim().length > 0 || selectedParticipant !== 'all';
 
   return (
-    <div className="min-h-screen bg-void text-text-primary flex flex-col font-sans antialiased selection:bg-ember/30 selection:text-warm-highlight">
+    <div className="min-h-screen bg-[#0B0A08] text-text-primary flex flex-col md:flex-row font-sans antialiased selection:bg-ember/30 selection:text-warm-highlight">
+      {/* Film-grain texture layer */}
+      <div className="film-grain pointer-events-none fixed inset-0 z-10" aria-hidden="true" />
+
       <input
         ref={fileInputRef}
         type="file"
@@ -475,324 +484,629 @@ export const WorkspacePage: React.FC = () => {
       />
 
       {/* =====================================================================
-          Top Editorial Workspace Navigation Header
+          Desktop Slim Left Sidebar (Charcoal, Hairline Right Border)
          ===================================================================== */}
-      <header className="sticky top-0 z-30 bg-canvas/90 backdrop-blur-md border-b border-border-default/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
-          {/* Subtle Wordmark & Thread Title */}
-          <div className="flex items-center gap-3 min-w-0">
-            <Link to="/" className="flex items-center gap-2 focus-ember rounded py-1 group shrink-0">
-              <span className="w-2 h-2 rounded-full bg-ember shadow-[0_0_8px_rgba(255,82,27,0.6)]" />
-              <span className="font-serif italic text-base tracking-tight text-text-primary">
-                Missed.
-              </span>
-              <span className="text-[10px] font-mono tracking-widest uppercase text-text-muted hidden sm:inline">
-                / workspace
-              </span>
-            </Link>
+      <aside className="hidden md:flex w-60 lg:w-64 shrink-0 bg-[#0B0A08] border-r border-white/[0.08] flex-col justify-between p-4 h-screen sticky top-0 z-20">
+        <div className="space-y-6">
+          {/* Serif Wordmark */}
+          <Link
+            to="/"
+            className="flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-white/[0.03] transition-colors focus-ember group"
+          >
+            <div className="w-7 h-7 rounded-full bg-ember/15 border border-ember/35 flex items-center justify-center text-ember-hover group-hover:bg-ember group-hover:text-text-primary transition-colors shadow-[0_0_12px_rgba(255,82,27,0.25)]">
+              <Flame className="w-3.5 h-3.5" />
+            </div>
+            <span className="font-serif italic text-lg tracking-tight text-text-primary">
+              Missed<span className="text-ember">.</span>
+            </span>
+            <span className="text-[10px] font-mono tracking-widest uppercase text-text-muted ml-auto">
+              triage
+            </span>
+          </Link>
 
-            <span className="text-border-strong hidden sm:inline">|</span>
+          {/* Navigation Items: Conversations, Import, Settings */}
+          <nav className="space-y-1.5" aria-label="Sidebar navigation">
+            <button
+              type="button"
+              onClick={() => setActiveNav('conversations')}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                activeNav === 'conversations'
+                  ? 'bg-white/[0.08] text-text-primary font-semibold border border-white/[0.12] shadow-sm'
+                  : 'text-text-secondary hover:text-text-primary hover:bg-white/[0.03]'
+              }`}
+            >
+              <span className="flex items-center gap-2.5">
+                <MessageSquare className="w-4 h-4 text-ember" />
+                <span>Conversations</span>
+              </span>
+              <span className="font-mono text-[10px] px-1.5 py-0.5 rounded-full bg-white/[0.06] text-text-muted">
+                {cloudConversations.length}
+              </span>
+            </button>
 
-            {/* Cloud Status Indicator Badge */}
-            <div className="flex items-center gap-1.5 shrink-0">
-              {isCloudSaved ? (
-                <Badge variant="ember" icon={<Cloud className="w-3 h-3 text-ember-hover" />}>
-                  Cloud Saved
-                </Badge>
-              ) : (
-                <Badge variant="neutral" icon={<ShieldCheck className="w-3 h-3 text-semantic-local" />}>
-                  Local Memory
-                </Badge>
-              )}
+            <button
+              type="button"
+              onClick={handleTriggerUpload}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-white/[0.03] transition-colors cursor-pointer"
+            >
+              <Upload className="w-4 h-4 text-ember" />
+              <span>Import Export</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsSettingsOpen(true)}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-white/[0.03] transition-colors cursor-pointer"
+            >
+              <Settings className="w-4 h-4 text-text-muted" />
+              <span>Settings</span>
+            </button>
+          </nav>
+
+          {/* Quick Active Thread Glance */}
+          <div className="pt-4 border-t border-white/[0.06] space-y-2">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-text-muted px-2 block">
+              Active Thread
+            </span>
+            <div className="p-3 rounded-xl bg-[#0E0C0A] border border-white/[0.08] text-xs">
+              <p className="font-medium text-text-primary truncate" title={activeFileName}>
+                {activeFileName || 'Untitled'}
+              </p>
+              <div className="flex items-center gap-2 mt-2 text-[10px] font-mono text-text-muted">
+                <span>{messages.length} msgs</span>
+                <span>•</span>
+                <span className={isCloudSaved ? 'text-ember-hover' : 'text-emerald-400'}>
+                  {isCloudSaved ? 'Cloud Saved' : 'Local Memory'}
+                </span>
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Right Actions: Layout Toggle, User Profile, Sign Out */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Split vs Side Panel Switcher */}
-            <div
-              role="group"
-              aria-label="Workspace layout mode"
-              className="hidden md:flex items-center gap-1 bg-surface p-1 rounded-full border border-border-default text-[11px]"
-            >
-              <button
-                type="button"
-                onClick={() => setLayoutMode('split')}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all cursor-pointer focus-ember ${
-                  layoutMode === 'split'
-                    ? 'bg-elevated text-text-primary font-semibold border border-ember/40'
-                    : 'text-text-secondary hover:text-text-primary'
-                }`}
-              >
-                <Columns2 className="w-3 h-3 text-ember-hover" />
-                <span>Split View</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setLayoutMode('sidepanel')}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all cursor-pointer focus-ember ${
-                  layoutMode === 'sidepanel'
-                    ? 'bg-elevated text-text-primary font-semibold border border-ember/40'
-                    : 'text-text-secondary hover:text-text-primary'
-                }`}
-              >
-                <Smartphone className="w-3 h-3 text-ember-hover" />
-                <span>Side Panel (380px)</span>
-              </button>
-            </div>
-
-            {/* User Account Badge & Sign Out */}
-            <div className="flex items-center gap-2 pl-2 border-l border-border-default">
-              <span className="text-xs text-text-secondary font-mono hidden sm:inline truncate max-w-[130px]">
-                {user?.email}
-              </span>
+        {/* Bottom Sidebar: User Email & Subtle Logout */}
+        <div className="pt-4 border-t border-white/[0.08] space-y-2">
+          {user ? (
+            <>
+              <div className="px-3 py-1">
+                <span className="text-[10px] uppercase tracking-wider text-text-muted block font-mono">
+                  Signed in as
+                </span>
+                <span className="font-mono text-[11px] text-text-secondary truncate block max-w-[190px]" title={user.email}>
+                  {user.email}
+                </span>
+              </div>
               <button
                 type="button"
                 onClick={() => signOut()}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface hover:bg-elevated border border-border-default text-xs text-text-secondary hover:text-text-primary focus-ember transition-colors cursor-pointer"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-text-muted hover:text-text-primary hover:bg-white/[0.04] transition-colors cursor-pointer"
                 title="Sign out of Missed."
               >
-                <LogOut className="w-3.5 h-3.5 text-ember-hover" />
-                <span className="hidden sm:inline">Sign Out</span>
+                <LogOut className="w-3.5 h-3.5 text-ember" />
+                <span>Log Out</span>
               </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Cloud Conversations Rail */}
-      <section className="bg-surface/50 border-b border-border-default/80 px-4 sm:px-6 py-2">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 overflow-x-auto py-0.5 scrollbar-none">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-text-muted shrink-0 flex items-center gap-1">
-              <FolderOpen className="w-3 h-3 text-ember-hover" />
-              Threads:
-            </span>
-
-            {isLoadingList ? (
-              <span className="text-text-muted text-[11px] font-mono animate-pulse">
-                fetching cloud records...
+            </>
+          ) : (
+            <div className="px-3 py-2 space-y-2">
+              <span className="text-[10px] uppercase tracking-wider text-amber-400 font-mono block">
+                Guest Demo
               </span>
-            ) : cloudConversations.length === 0 ? (
-              <span className="text-text-muted text-[11px] font-mono">
-                No cloud conversations yet. Upload an export below.
-              </span>
-            ) : (
-              cloudConversations.map((c) => (
-                <div
-                  key={c.id}
-                  onClick={() => loadCloudConversation(c.id)}
-                  className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-lg border text-xs cursor-pointer transition-all ${
-                    activeCloudId === c.id
-                      ? 'bg-elevated border-ember/50 text-text-primary font-semibold shadow-[0_0_12px_rgba(255,82,27,0.15)]'
-                      : 'bg-canvas/80 border-border-default text-text-secondary hover:text-text-primary hover:border-border-strong'
-                  }`}
-                >
-                  <span className="truncate max-w-[120px]">{c.title}</span>
-                  <span className="text-[10px] font-mono text-text-muted">
-                    ({c.messageCount})
-                  </span>
-                  <button
-                    type="button"
-                    onClick={(e) => handleDeleteConversation(c.id, e)}
-                    className="text-text-muted hover:text-semantic-urgent p-0.5 rounded cursor-pointer"
-                    title="Delete cloud conversation"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
-
-          <div className="flex items-center gap-2 ml-auto">
-            {!isCloudSaved && rawFileContent && (
-              <Button
-                variant="primary"
-                size="xs"
-                pill
-                onClick={handleSaveToCloud}
-                loading={isSyncingCloud}
-                leftIcon={<Cloud className="w-3 h-3" />}
+              <Link
+                to="/signup"
+                className="w-full py-2 px-3 rounded-xl bg-ember hover:bg-ember-hover text-white text-[11px] font-medium flex items-center justify-center gap-1.5 shadow-[0_2px_12px_rgba(255,82,27,0.3)] transition-all"
               >
-                Save Active to Cloud
-              </Button>
-            )}
-            <Button
-              variant="secondary"
-              size="xs"
-              pill
-              onClick={handleTriggerUpload}
-              leftIcon={<Upload className="w-3 h-3 text-ember-hover" />}
-            >
-              Import Export
-            </Button>
-          </div>
+                <span>Sign Up to Save</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
+          )}
         </div>
-      </section>
+      </aside>
 
-      {/* Notifications */}
-      <ErrorBanner
-        error={error}
-        warning={warning}
-        onDismiss={() => {
-          setError(undefined);
-          setWarning(undefined);
-        }}
-      />
+      {/* =====================================================================
+          Mobile Header Bar (Only visible on screens < md)
+         ===================================================================== */}
+      <div className="md:hidden sticky top-0 z-30 bg-[#0B0A08]/95 backdrop-blur-md border-b border-white/[0.08] px-4 py-3 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-ember shadow-[0_0_8px_rgba(255,82,27,0.7)]" />
+          <span className="font-serif italic text-base tracking-tight text-text-primary">
+            Missed<span className="text-ember">.</span>
+          </span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleTriggerUpload}
+            className="p-1.5 rounded-lg bg-white/[0.05] text-text-secondary hover:text-text-primary text-xs"
+            title="Import Export"
+          >
+            <Upload className="w-4 h-4 text-ember" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsSettingsOpen(true)}
+            className="p-1.5 rounded-lg bg-white/[0.05] text-text-secondary hover:text-text-primary text-xs"
+            title="Settings"
+          >
+            <Settings className="w-4 h-4" />
+          </button>
+          {user && (
+            <button
+              type="button"
+              onClick={() => signOut()}
+              className="p-1.5 rounded-lg bg-white/[0.05] text-text-secondary hover:text-text-primary text-xs"
+              title="Sign Out"
+            >
+              <LogOut className="w-4 h-4 text-ember" />
+            </button>
+          )}
+        </div>
+      </div>
 
-      {/* Main Catch-Up Surface */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-2 sm:px-6 py-4 sm:py-6 flex items-start justify-center">
-        {!hasActiveConversation ? (
-          <div className="w-full max-w-md my-8">
-            <EmptyState
-              title="No Conversation Active"
-              description="Import a WhatsApp, Slack, or TXT chat export to catch up on blockers and decisions, or load the built-in incident sample."
-              icon={<Plus className="w-6 h-6" />}
-              action={
-                <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    pill
-                    onClick={handleTriggerUpload}
-                    leftIcon={<Upload className="w-4 h-4" />}
+      {/* =====================================================================
+          Main Content Area (Near-black ground #0B0A08)
+         ===================================================================== */}
+      <div className="flex-1 min-w-0 flex flex-col bg-[#0B0A08] overflow-y-auto">
+        {/* Notifications */}
+        <ErrorBanner
+          error={error}
+          warning={warning}
+          onDismiss={() => {
+            setError(undefined);
+            setWarning(undefined);
+          }}
+        />
+
+        <div className="max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+          {/* Guest Demo Banner if unauthenticated */}
+          {!accessToken && (
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2.5">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-amber-500/40 bg-amber-500/15 text-amber-400 text-[10px] font-mono tracking-widest uppercase shrink-0">
+                  Guest Demo Mode
+                </span>
+                <span className="text-text-secondary">
+                  Running entirely in browser memory. Zero cloud writes until you create an account.
+                </span>
+              </div>
+              <Link
+                to="/signup"
+                className="inline-flex items-center gap-1 text-ember-hover hover:text-warm-highlight font-medium hover:underline text-xs shrink-0"
+              >
+                <span>Sign Up to Save to Cloud</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
+          )}
+
+          {/* Header Row: Serif Page Title + Account-State Indicator */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-white/[0.08]">
+            <div className="space-y-1">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h1 className="font-serif text-2xl sm:text-3xl font-normal text-text-primary tracking-tight">
+                  {activeFileName || 'Triage Workspace'}
+                </h1>
+
+                {/* Core Trust Signal Badge: Cloud Saved vs Local Memory */}
+                {isCloudSaved ? (
+                  <Badge
+                    variant="ember"
+                    icon={<Cloud className="w-3 h-3 text-ember" />}
+                    className="border border-ember/40 bg-ember/10 text-ember-hover text-[10px] font-mono tracking-widest uppercase px-2.5 py-0.5 rounded-full"
                   >
-                    Import Chat File
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    pill
-                    onClick={handleLoadSample}
-                  >
-                    Load Sample Incident
-                  </Button>
-                </div>
-              }
-            />
-          </div>
-        ) : (
-          <div className="w-full flex flex-col lg:flex-row items-center lg:items-start justify-center gap-6">
-            {/* Primary Catch-Up Side Panel */}
-            <div className="w-full max-w-[420px] bg-surface rounded-[var(--radius-card-lg)] border border-border-default/90 shadow-[var(--shadow-obsidian-lg)] overflow-hidden flex flex-col flex-shrink-0 border-specular">
-              <MissedHeader
-                onRefresh={handleCatchMeUp}
-                onLoadSample={handleLoadSample}
-                onUploadClick={handleTriggerUpload}
-                onCopySummary={handleCopySummary}
-                onReset={handleReset}
-                onOpenAbout={() => setIsAboutOpen(true)}
-                copied={copied}
-                hasActiveConversation={hasActiveConversation}
-                isAnalyzing={isAnalyzing || isSyncingCloud}
-              />
-
-              <ConversationBar
-                title={activeFileName}
-                messageCount={messages.length}
-                isSample={isSampleLoaded}
-                isAnalyzing={isAnalyzing || isSyncingCloud}
-                onCatchMeUp={handleCatchMeUp}
-              />
-
-              <SummaryCounters
-                urgentCount={analysis.stats.urgentCount}
-                taskCount={analysis.stats.actionItemCount}
-                completedTaskCount={completedTaskIds.size}
-                decisionCount={analysis.stats.decisionCount}
-                onSelectTab={setActiveTab}
-              />
-
-              <NavigationTabs
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-                taskCount={Math.max(0, allTasks.length - completedTaskIds.size)}
-                importantCount={
-                  analysis.stats.urgentCount + analysis.stats.decisionCount
-                }
-              />
-
-              <CompactFilter
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                selectedParticipant={selectedParticipant}
-                onParticipantChange={setSelectedParticipant}
-                participants={analysis.recap.participants}
-              />
-
-              <div className="max-h-[560px] overflow-y-auto bg-canvas/40 scrollbar-obsidian">
-                {isAnalyzing || isSyncingCloud ? (
-                  <WorkspaceSkeleton />
+                    Cloud Saved
+                  </Badge>
                 ) : (
-                  <>
-                    {activeTab === 'overview' && (
-                      <OverviewView
-                        analysis={analysis}
-                        filteredFindings={
-                          hasActiveFilter ? filteredFindings : undefined
-                        }
-                        completedTaskIds={completedTaskIds}
-                        onToggleTask={handleToggleTask}
-                        onJumpToMessage={handleJumpToMessage}
-                        onViewAllTasks={() => setActiveTab('tasks')}
-                        onViewAllImportant={() => setActiveTab('important')}
-                      />
-                    )}
-
-                    {activeTab === 'tasks' && (
-                      <TasksView
-                        tasks={allTasks}
-                        completedTaskIds={completedTaskIds}
-                        onToggleTask={handleToggleTask}
-                        onJumpToMessage={handleJumpToMessage}
-                      />
-                    )}
-
-                    {activeTab === 'important' && (
-                      <ImportantView
-                        findings={filteredFindings}
-                        onJumpToMessage={handleJumpToMessage}
-                      />
-                    )}
-                  </>
+                  <Badge
+                    variant="neutral"
+                    icon={<ShieldCheck className="w-3 h-3 text-emerald-400" />}
+                    className="border border-white/20 bg-white/5 text-white/70 text-[10px] font-mono tracking-widest uppercase px-2.5 py-0.5 rounded-full"
+                  >
+                    Local Memory
+                  </Badge>
                 )}
               </div>
+              <p className="text-xs text-text-muted">
+                Deterministic catch-up triage on chat exports with source message fidelity.
+              </p>
+            </div>
 
-              <div className="px-3.5 py-2.5 bg-elevated/90 border-t border-border-default flex items-center justify-between text-[11px] text-text-secondary">
-                <span className="flex items-center gap-1.5 font-mono text-[10px]">
-                  <ShieldCheck className="w-3.5 h-3.5 text-semantic-local shrink-0" />
-                  {isCloudSaved
-                    ? 'Cloud Persisted (PostgreSQL RLS)'
-                    : '100% on-device heuristic engine'}
-                </span>
+            {/* Right Controls: Save to Cloud, Split/Sidepanel switcher, Import Export */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
+              {!isCloudSaved && rawFileContent && accessToken && (
+                <Button
+                  variant="primary"
+                  size="xs"
+                  pill
+                  onClick={handleSaveToCloud}
+                  loading={isSyncingCloud}
+                  leftIcon={<Cloud className="w-3 h-3" />}
+                >
+                  Save Active to Cloud
+                </Button>
+              )}
+
+              {/* Split vs Side Panel Switcher */}
+              <div
+                role="group"
+                aria-label="Workspace layout mode"
+                className="hidden lg:flex items-center gap-1 bg-[#141210] p-1 rounded-full border border-white/[0.08] text-[11px]"
+              >
                 <button
                   type="button"
-                  onClick={() =>
-                    setLayoutMode(layoutMode === 'split' ? 'sidepanel' : 'split')
-                  }
-                  className="text-ember-hover hover:text-warm-highlight font-semibold hidden lg:inline cursor-pointer focus-ember rounded px-1"
+                  onClick={() => setLayoutMode('split')}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full transition-all cursor-pointer focus-ember ${
+                    layoutMode === 'split'
+                      ? 'bg-[#1E1A17] text-text-primary font-semibold border border-ember/40 shadow-sm'
+                      : 'text-text-secondary hover:text-text-primary'
+                  }`}
                 >
-                  {layoutMode === 'split' ? 'Hide timeline' : 'Show timeline'}
+                  <Columns2 className="w-3 h-3 text-ember" />
+                  <span>Split View</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLayoutMode('sidepanel')}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full transition-all cursor-pointer focus-ember ${
+                    layoutMode === 'sidepanel'
+                      ? 'bg-[#1E1A17] text-text-primary font-semibold border border-ember/40 shadow-sm'
+                      : 'text-text-secondary hover:text-text-primary'
+                  }`}
+                >
+                  <Smartphone className="w-3 h-3 text-ember" />
+                  <span>Side Panel</span>
+                </button>
+              </div>
+
+              <Button
+                variant="secondary"
+                size="xs"
+                pill
+                onClick={handleTriggerUpload}
+                leftIcon={<Upload className="w-3 h-3 text-ember" />}
+              >
+                Import Export
+              </Button>
+            </div>
+          </div>
+
+          {/* ===================================================================
+              Conversation List: Dense, scannable cards/rows with title, date,
+              priority counts, hairline separators, motion-card-lift.
+             =================================================================== */}
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="eyebrow-editorial">SAVED CONVERSATIONS</span>
+                <span className="text-[11px] font-mono text-text-muted">
+                  ({cloudConversations.length} total)
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-xs">
+                <button
+                  type="button"
+                  onClick={handleLoadSample}
+                  className="text-text-muted hover:text-text-secondary transition-colors cursor-pointer"
+                >
+                  Load Sample Incident
+                </button>
+                <button
+                  type="button"
+                  onClick={handleTriggerUpload}
+                  className="text-ember-hover hover:text-warm-highlight font-medium transition-colors cursor-pointer inline-flex items-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>New Import</span>
                 </button>
               </div>
             </div>
 
-            {/* Companion Conversation Timeline Preview */}
-            {layoutMode === 'split' && (
-              <div className="hidden lg:block flex-1 max-w-2xl h-[740px] w-full">
-                <TranscriptViewer
-                  messages={messages}
-                  findings={analysis.findings}
-                  highlightedMessageId={highlightedMessageId}
-                  searchQuery={searchQuery}
-                  selectedParticipant={selectedParticipant}
-                />
+            {isLoadingList ? (
+              <div className="p-6 text-center text-xs text-text-muted font-mono animate-pulse bg-[#0E0C0A] rounded-2xl border border-white/[0.08]">
+                Fetching cloud records...
+              </div>
+            ) : cloudConversations.length === 0 ? (
+              /* Editorial Empty State when no conversations exist */
+              <div className="p-8 text-center bg-[#0E0C0A] rounded-2xl border border-white/[0.08] shadow-[0_10px_30px_rgba(0,0,0,0.5)] space-y-4">
+                <div className="w-12 h-12 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-text-muted mx-auto">
+                  <FolderOpen className="w-6 h-6 text-ember" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-serif text-xl font-normal text-text-primary">
+                    No conversations imported yet
+                  </h3>
+                  <p className="text-xs text-text-secondary max-w-md mx-auto leading-relaxed">
+                    Import a WhatsApp, Slack, TXT, or JSON export to automatically surface blockers, decisions, and action items.
+                  </p>
+                </div>
+                <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleTriggerUpload}
+                    className="px-4 py-2.5 rounded-full bg-ember hover:bg-ember-hover text-white font-medium text-xs tracking-wider uppercase inline-flex items-center gap-2 shadow-[0_2px_14px_rgba(255,82,27,0.3)] cursor-pointer transition-all"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span>Import your first conversation</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleLoadSample}
+                    className="px-4 py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] text-text-secondary hover:text-text-primary text-xs font-medium cursor-pointer transition-colors"
+                  >
+                    Load Sample Incident
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Dense Scannable Grid of Cards */
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {cloudConversations.map((c) => {
+                  const isActive = activeCloudId === c.id;
+                  const formattedDate = c.createdAt
+                    ? new Date(c.createdAt).toLocaleDateString(undefined, {
+                        month: 'short',
+                        day: 'numeric',
+                      })
+                    : '';
+
+                  return (
+                    <div
+                      key={c.id}
+                      onClick={() => loadCloudConversation(c.id)}
+                      className={`motion-card-lift p-3.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-2.5 ${
+                        isActive
+                          ? 'bg-[#141210] border-ember/50 shadow-[0_4px_20px_rgba(255,82,27,0.18)]'
+                          : 'bg-[#0E0C0A] border-white/[0.08] hover:border-white/[0.16]'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            {isActive && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-ember shadow-[0_0_6px_rgba(255,82,27,0.8)]" />
+                            )}
+                            <span className="text-[10px] font-mono uppercase tracking-wider text-text-muted">
+                              {c.sourceFormat || 'CHAT'}
+                            </span>
+                            {formattedDate && (
+                              <span className="text-[10px] font-mono text-text-muted">
+                                • {formattedDate}
+                              </span>
+                            )}
+                          </div>
+                          <h4 className="text-xs font-semibold text-text-primary truncate" title={c.title}>
+                            {c.title}
+                          </h4>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteConversation(c.id, e)}
+                          className="text-text-muted hover:text-semantic-urgent p-1 rounded-md hover:bg-white/[0.05] transition-colors cursor-pointer shrink-0"
+                          title="Delete cloud conversation"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Priority counts chips */}
+                      <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] font-mono">
+                        <span className="text-text-muted">
+                          {c.messageCount} msgs
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {isActive ? (
+                            <>
+                              {analysis.stats.urgentCount > 0 && (
+                                <span className="px-1.5 py-0.5 rounded bg-semantic-urgent/15 text-semantic-urgent font-bold" title="Blockers">
+                                  {analysis.stats.urgentCount} urg
+                                </span>
+                              )}
+                              {analysis.stats.decisionCount > 0 && (
+                                <span className="px-1.5 py-0.5 rounded bg-semantic-decision/15 text-semantic-decision" title="Decisions">
+                                  {analysis.stats.decisionCount} dec
+                                </span>
+                              )}
+                              {analysis.stats.actionItemCount > 0 && (
+                                <span className="px-1.5 py-0.5 rounded bg-semantic-task/15 text-semantic-task" title="Tasks">
+                                  {analysis.stats.actionItemCount} act
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            <span className="text-text-muted">
+                              {c.participantCount} participants
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
+          </section>
+
+          {/* ===================================================================
+              Detail / Triage Pane & Timeline
+             =================================================================== */}
+          <main className="w-full flex items-start justify-center pt-2">
+            {!hasActiveConversation ? (
+              <div className="w-full max-w-md my-8">
+                <EmptyState
+                  title="No Conversation Active"
+                  description="Import a WhatsApp, Slack, or TXT chat export to catch up on blockers and decisions, or load the built-in incident sample."
+                  icon={<Plus className="w-6 h-6" />}
+                  action={
+                    <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        pill
+                        onClick={handleTriggerUpload}
+                        leftIcon={<Upload className="w-4 h-4" />}
+                      >
+                        Import Chat File
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        pill
+                        onClick={handleLoadSample}
+                      >
+                        Load Sample Incident
+                      </Button>
+                    </div>
+                  }
+                />
+              </div>
+            ) : (
+              <div className="w-full flex flex-col lg:flex-row items-center lg:items-start justify-center gap-6">
+                {/* Primary Catch-Up Side Panel */}
+                <div className="w-full max-w-[430px] bg-[#0E0C0A] rounded-2xl border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.65)] overflow-hidden flex flex-col flex-shrink-0">
+                  <MissedHeader
+                    onRefresh={handleCatchMeUp}
+                    onLoadSample={handleLoadSample}
+                    onUploadClick={handleTriggerUpload}
+                    onCopySummary={handleCopySummary}
+                    onReset={handleReset}
+                    onOpenAbout={() => setIsAboutOpen(true)}
+                    copied={copied}
+                    hasActiveConversation={hasActiveConversation}
+                    isAnalyzing={isAnalyzing || isSyncingCloud}
+                  />
+
+                  <ConversationBar
+                    title={activeFileName}
+                    messageCount={messages.length}
+                    isSample={isSampleLoaded}
+                    isAnalyzing={isAnalyzing || isSyncingCloud}
+                    onCatchMeUp={handleCatchMeUp}
+                  />
+
+                  <SummaryCounters
+                    urgentCount={analysis.stats.urgentCount}
+                    taskCount={analysis.stats.actionItemCount}
+                    completedTaskCount={completedTaskIds.size}
+                    decisionCount={analysis.stats.decisionCount}
+                    onSelectTab={setActiveTab}
+                  />
+
+                  <NavigationTabs
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                    taskCount={Math.max(0, allTasks.length - completedTaskIds.size)}
+                    importantCount={
+                      analysis.stats.urgentCount + analysis.stats.decisionCount
+                    }
+                  />
+
+                  <CompactFilter
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    selectedParticipant={selectedParticipant}
+                    onParticipantChange={setSelectedParticipant}
+                    participants={analysis.recap.participants}
+                  />
+
+                  <div className="max-h-[560px] overflow-y-auto bg-[#0B0A08]/40 scrollbar-obsidian">
+                    {isAnalyzing || isSyncingCloud ? (
+                      <WorkspaceSkeleton />
+                    ) : (
+                      <>
+                        {activeTab === 'overview' && (
+                          <OverviewView
+                            analysis={analysis}
+                            filteredFindings={
+                              hasActiveFilter ? filteredFindings : undefined
+                            }
+                            completedTaskIds={completedTaskIds}
+                            onToggleTask={handleToggleTask}
+                            onJumpToMessage={handleJumpToMessage}
+                            onViewAllTasks={() => setActiveTab('tasks')}
+                            onViewAllImportant={() => setActiveTab('important')}
+                          />
+                        )}
+
+                        {activeTab === 'tasks' && (
+                          <TasksView
+                            tasks={allTasks}
+                            completedTaskIds={completedTaskIds}
+                            onToggleTask={handleToggleTask}
+                            onJumpToMessage={handleJumpToMessage}
+                          />
+                        )}
+
+                        {activeTab === 'important' && (
+                          <ImportantView
+                            findings={filteredFindings}
+                            onJumpToMessage={handleJumpToMessage}
+                          />
+                        )}
+                      </>
+                    )}
+                  </div>
+
+                  <div className="px-4 py-2.5 bg-[#141210] border-t border-white/[0.08] flex items-center justify-between text-[11px] text-text-secondary">
+                    <span className="flex items-center gap-1.5 font-mono text-[10px]">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      {isCloudSaved
+                        ? 'Cloud Persisted (PostgreSQL RLS)'
+                        : '100% on-device heuristic engine'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setLayoutMode(layoutMode === 'split' ? 'sidepanel' : 'split')
+                      }
+                      className="text-ember-hover hover:text-warm-highlight font-semibold hidden lg:inline cursor-pointer focus-ember rounded px-1"
+                    >
+                      {layoutMode === 'split' ? 'Hide timeline' : 'Show timeline'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Companion Conversation Timeline Preview */}
+                {layoutMode === 'split' && (
+                  <div className="hidden lg:block flex-1 max-w-2xl h-[780px] w-full rounded-2xl overflow-hidden border border-white/[0.08] bg-[#0E0C0A]">
+                    <TranscriptViewer
+                      messages={messages}
+                      findings={analysis.findings}
+                      highlightedMessageId={highlightedMessageId}
+                      searchQuery={searchQuery}
+                      selectedParticipant={selectedParticipant}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </main>
+        </div>
+
+        {/* Footer Account Actions */}
+        <footer className="mt-auto border-t border-white/[0.08] bg-[#0B0A08] px-6 py-4 text-xs text-text-muted flex items-center justify-between">
+          <span className="font-mono text-[11px]">
+            {user ? `Authenticated as ${user.email}` : 'Guest Session'}
+          </span>
+          <div className="flex items-center gap-4 text-xs">
+            <button
+              type="button"
+              onClick={() => setIsAboutOpen(true)}
+              className="hover:text-text-secondary cursor-pointer"
+            >
+              Privacy & Architecture
+            </button>
+            {user && (
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(true)}
+                className="hover:text-semantic-urgent cursor-pointer"
+              >
+                Delete Account
+              </button>
+            )}
           </div>
-        )}
-      </main>
+        </footer>
+      </div>
 
       {/* Source Drawer for Side Panel Mode */}
       <SourceDrawer
@@ -803,31 +1117,75 @@ export const WorkspacePage: React.FC = () => {
         onOpenFullTranscript={() => setLayoutMode('split')}
       />
 
-      {/* Footer Account Actions */}
-      <footer className="border-t border-border-default/80 bg-canvas/80 px-4 py-3 text-xs text-text-muted flex items-center justify-between">
-        <span className="font-mono text-[10px]">
-          Authenticated as {user?.email}
-        </span>
-        <div className="flex items-center gap-4 text-xs">
-          <button
-            type="button"
-            onClick={() => setIsAboutOpen(true)}
-            className="hover:text-text-secondary cursor-pointer"
-          >
-            Privacy & Architecture
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsDeleteModalOpen(true)}
-            className="hover:text-semantic-urgent cursor-pointer"
-          >
-            Delete Account
-          </button>
-        </div>
-      </footer>
-
       {/* Privacy Modal */}
       <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
+
+      {/* Settings Modal */}
+      <Modal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        title="Workspace Settings"
+        subtitle="Account preferences, storage isolation, and security controls"
+        footer={
+          <div className="flex items-center justify-end w-full">
+            <Button
+              variant="secondary"
+              size="sm"
+              pill
+              onClick={() => setIsSettingsOpen(false)}
+            >
+              Close
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-4 text-xs">
+          <div className="space-y-1.5 p-3 rounded-xl bg-[#141210] border border-white/[0.08]">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-text-muted">Account</span>
+            <p className="font-medium text-text-primary">
+              {user ? user.email : 'Guest Session (Local Memory)'}
+            </p>
+            <p className="text-[11px] text-text-muted">
+              {user ? 'Secured via Supabase Row-Level Security' : 'No account active'}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-text-muted">Information</span>
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSettingsOpen(false);
+                  setIsAboutOpen(true);
+                }}
+                className="w-full text-left p-2.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
+              >
+                Privacy & Architecture Specification →
+              </button>
+            </div>
+          </div>
+
+          {user && (
+            <div className="pt-2 border-t border-white/[0.08] space-y-2">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-semantic-urgent">Danger Zone</span>
+              <p className="text-[11px] text-text-muted">
+                Permanently delete your account and all associated cloud conversations.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSettingsOpen(false);
+                  setIsDeleteModalOpen(true);
+                }}
+                className="px-3 py-1.5 rounded-lg border border-red-500/30 text-semantic-urgent hover:bg-red-500/10 text-xs font-medium cursor-pointer transition-colors"
+              >
+                Delete Account
+              </button>
+            </div>
+          )}
+        </div>
+      </Modal>
 
       {/* Account Deletion Confirmation Modal */}
       <Modal

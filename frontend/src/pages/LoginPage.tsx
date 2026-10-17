@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Flame, Eye, EyeOff, ArrowRight, Sparkles, Mail, Lock } from 'lucide-react';
-import { Button, StatusBanner } from '../components/ui';
+import { StatusBanner } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { getSafeRedirect } from '../config/env';
 
@@ -55,18 +55,21 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-void text-text-primary flex flex-col justify-center items-center p-4 sm:p-6 bg-circuit-grid">
+    <div className="min-h-screen bg-[#0B0A08] text-text-primary flex flex-col justify-center items-center p-4 sm:p-6 relative overflow-hidden">
+      {/* Film-grain texture layer */}
+      <div className="film-grain" aria-hidden="true" />
+
       {/* Brand Header */}
-      <div className="mb-6 text-center space-y-1.5 motion-fade-up">
+      <div className="relative z-20 mb-6 text-center space-y-1.5 motion-fade-up">
         <Link
           to="/"
           className="inline-flex items-center gap-2 group focus-ember rounded-lg"
         >
-          <div className="w-9 h-9 rounded-[var(--radius-icon)] bg-ember/15 border border-ember/35 flex items-center justify-center text-ember-hover group-hover:bg-ember group-hover:text-text-primary transition-colors shadow-[0_0_16px_rgba(255,77,28,0.2)]">
-            <Flame className="w-4.5 h-4.5" />
+          <div className="w-8 h-8 rounded-full bg-ember/15 border border-ember/35 flex items-center justify-center text-ember-hover group-hover:bg-ember group-hover:text-text-primary transition-colors shadow-[0_0_16px_rgba(255,77,28,0.2)]">
+            <Flame className="w-4 h-4" />
           </div>
           <span className="font-serif font-semibold text-xl tracking-tight text-text-primary">
-            Missed<span className="text-ember-hover">.</span>
+            Missed<span className="text-ember">.</span>
           </span>
         </Link>
         <p className="text-[11px] sm:text-xs text-text-muted">
@@ -76,14 +79,15 @@ export const LoginPage: React.FC = () => {
 
       {/* Main Login Card */}
       <div
-        className="w-full max-w-[400px] rounded-2xl bg-[#0E0C0A]/95 border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.65)] p-6 sm:p-7 motion-scale-in"
+        className="relative z-20 w-full max-w-[400px] rounded-2xl bg-[#0E0C0A] border border-white/[0.08] shadow-[0_24px_60px_rgba(0,0,0,0.8)] p-6 sm:p-8 motion-scale-in"
       >
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          <div className="space-y-1 mb-1">
-            <h1 className="font-serif text-2xl font-normal text-text-primary tracking-tight">
+          <div className="space-y-1 mb-3">
+            <span className="eyebrow-editorial">MISSED. ACCOUNT</span>
+            <h1 className="font-serif text-2xl sm:text-3xl font-normal text-text-primary tracking-tight mt-1">
               Welcome back
             </h1>
-            <p className="text-xs text-text-secondary">
+            <p className="text-xs text-text-secondary mt-0.5">
               Enter your credentials to access your protected workspace.
             </p>
           </div>
@@ -170,19 +174,18 @@ export const LoginPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Submit Action */}
+          {/* Submit Action: Full-width ember button with arrow affordance */}
           <div className="pt-2">
-            <Button
+            <button
               type="submit"
-              variant="primary"
-              size="md"
-              pill
-              className="w-full justify-center shadow-[0_2px_14px_rgba(255,82,27,0.25)] hover:shadow-[0_4px_20px_rgba(255,82,27,0.4)]"
-              loading={isSubmitting}
-              rightIcon={<ArrowRight className="w-4 h-4" />}
+              disabled={isSubmitting}
+              className="w-full py-3 px-5 rounded-full bg-ember hover:bg-ember-hover text-[#FAF7F2] font-semibold text-xs tracking-wider uppercase flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(255,82,27,0.35)] hover:shadow-[0_6px_28px_rgba(255,82,27,0.5)] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed group focus-ember"
             >
-              Sign In
-            </Button>
+              <span>{isSubmitting ? 'Signing in...' : 'Sign In'}</span>
+              <span className="w-5 h-5 rounded-full bg-white/15 flex items-center justify-center transition-transform group-hover:translate-x-0.5">
+                <ArrowRight className="w-3.5 h-3.5 text-white" />
+              </span>
+            </button>
           </div>
 
           {/* Navigation Links */}
@@ -191,9 +194,10 @@ export const LoginPage: React.FC = () => {
               <span className="text-text-secondary">New to Missed.?</span>
               <Link
                 to="/signup"
-                className="text-ember-hover hover:text-warm-highlight font-semibold hover:underline"
+                className="text-ember-hover hover:text-warm-highlight font-semibold hover:underline inline-flex items-center gap-1"
               >
-                Create a free account →
+                <span>Create a free account</span>
+                <span aria-hidden="true">&rarr;</span>
               </Link>
             </div>
 
@@ -201,9 +205,9 @@ export const LoginPage: React.FC = () => {
               <span className="text-text-muted">Want to test first?</span>
               <Link
                 to="/demo"
-                className="text-amber-highlight hover:text-warm-highlight font-medium flex items-center gap-1 hover:underline"
+                className="text-amber-highlight hover:text-warm-highlight font-medium flex items-center gap-1.5 hover:underline"
               >
-                <Sparkles className="w-3 h-3" />
+                <Sparkles className="w-3.5 h-3.5" />
                 <span>Explore Guest Demo</span>
               </Link>
             </div>
@@ -212,12 +216,13 @@ export const LoginPage: React.FC = () => {
       </div>
 
       {/* Back to Home */}
-      <div className="mt-6 text-center">
+      <div className="relative z-20 mt-6 text-center">
         <Link
           to="/"
-          className="text-xs text-text-muted hover:text-text-secondary transition-colors"
+          className="text-xs text-text-muted hover:text-text-secondary transition-colors inline-flex items-center gap-1 focus-ember rounded px-2 py-1"
         >
-          ← Back to Missed. home
+          <span aria-hidden="true">&larr;</span>
+          <span>Back to Missed. home</span>
         </Link>
       </div>
     </div>
