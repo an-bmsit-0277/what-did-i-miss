@@ -8,6 +8,7 @@ import {
   type ParsedMessage,
   type ActiveTab,
   type ConversationAnalysis,
+  type AdapterParseResult,
 } from '@missed/engine';
 import { MissedHeader } from '../components/MissedHeader';
 import { ConversationBar } from '../components/ConversationBar';
@@ -22,6 +23,7 @@ import { SourceDrawer } from '../components/SourceDrawer';
 import { AboutModal } from '../components/AboutModal';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { Dropzone } from '../components/Dropzone';
+import { ImportModal } from '../components/ImportModal';
 import { Badge, Button, WorkspaceSkeleton } from '../components/ui';
 import {
   Flame,
@@ -76,6 +78,7 @@ export const DemoPage: React.FC = () => {
   const [error, setError] = useState<string | undefined>(undefined);
   const [warning, setWarning] = useState<string | undefined>(undefined);
   const [isAboutOpen, setIsAboutOpen] = useState<boolean>(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
   const [layoutMode, setLayoutMode] = useState<'split' | 'sidepanel'>('split');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -104,6 +107,35 @@ export const DemoPage: React.FC = () => {
     setError(undefined);
     setWarning(undefined);
     setCompletedTaskIds(new Set());
+    setSearchQuery('');
+    setSelectedParticipant('all');
+    handleCatchMeUp();
+  };
+
+  // Handle Confirmed Multi-Platform Import from ImportModal
+  const handleConfirmImport = (
+    _content: string,
+    fileName: string,
+    result: AdapterParseResult
+  ) => {
+    setError(undefined);
+    setWarning(undefined);
+
+    if (!result.success || result.messages.length === 0) {
+      setError(result.error || 'Failed to parse conversation file.');
+      return;
+    }
+
+    if (result.warning) {
+      setWarning(result.warning);
+    }
+
+    const title = result.conversation?.title || fileName.replace(/\.[^/.]+$/, '');
+    setMessages(result.messages);
+    setActiveFileName(title);
+    setIsSampleLoaded(false);
+    setCompletedTaskIds(new Set());
+    setHighlightedMessageId(null);
     setSearchQuery('');
     setSelectedParticipant('all');
     handleCatchMeUp();
@@ -148,7 +180,7 @@ export const DemoPage: React.FC = () => {
   };
 
   const handleTriggerUpload = () => {
-    fileInputRef.current?.click();
+    setIsImportModalOpen(true);
   };
 
   const handleNativeFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -520,6 +552,13 @@ export const DemoPage: React.FC = () => {
 
       {/* Privacy Modal */}
       <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
+
+      {/* Styled Multi-Platform Import Modal */}
+      <ImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onConfirmImport={handleConfirmImport}
+      />
     </div>
   );
 };

@@ -11,6 +11,7 @@ export function detectUrgency(msg: ParsedMessage): FindingItem | null {
   return {
     id: `finding-urg-${msg.id}`,
     sourceMessageId: msg.id,
+    sourceRef: msg.sourceRef,
     category: 'urgent',
     urgency: 'high',
     title: `${keyword} Issue Reported`,
@@ -32,6 +33,7 @@ export function detectDecision(msg: ParsedMessage): FindingItem | null {
   return {
     id: `finding-dec-${msg.id}`,
     sourceMessageId: msg.id,
+    sourceRef: msg.sourceRef,
     category: 'decision',
     urgency: 'high',
     title: 'Key Decision Reached',
@@ -57,6 +59,7 @@ export function detectDeadline(msg: ParsedMessage): FindingItem | null {
   return {
     id: `finding-dl-${msg.id}`,
     sourceMessageId: msg.id,
+    sourceRef: msg.sourceRef,
     category: 'deadline',
     urgency: 'high',
     title: dueDate ? `Deadline: ${dueDate}` : 'Target Deadline Identified',
@@ -93,6 +96,7 @@ export function detectActionItem(msg: ParsedMessage): FindingItem | null {
   return {
     id: `finding-act-${msg.id}`,
     sourceMessageId: msg.id,
+    sourceRef: msg.sourceRef,
     category: 'action_item',
     urgency: hasUrgencyOrDeadline ? 'high' : 'medium',
     title: assignee ? `Task assigned to ${assignee}` : 'Action Item Identified',
@@ -118,6 +122,7 @@ export function detectMention(msg: ParsedMessage): FindingItem | null {
   return {
     id: `finding-men-${msg.id}`,
     sourceMessageId: msg.id,
+    sourceRef: msg.sourceRef,
     category: 'mention',
     urgency: isQuestion ? 'medium' : 'low',
     title: isQuestion ? `Direct question to @${target}` : `Direct mention of @${target}`,

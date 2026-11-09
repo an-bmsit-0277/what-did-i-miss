@@ -12,6 +12,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { Badge, Card, CategoryBadge, EmptyState, PriorityBadge } from './ui';
+import { SourceLinkAffordance } from './SourceLinkAffordance';
 
 interface OverviewViewProps {
   analysis: ConversationAnalysis;
@@ -143,14 +144,19 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                   <span className="truncate">
                     From <strong className="text-text-primary font-medium">{finding.sender}</strong>
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => onJumpToMessage(finding.sourceMessageId)}
-                    className="inline-flex items-center gap-1 text-ember-hover hover:text-warm-highlight font-semibold text-[11px] focus-ember rounded cursor-pointer"
-                  >
-                    <span>Trace source</span>
-                    <ArrowRight className="w-3 h-3" />
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {finding.sourceRef && (
+                      <SourceLinkAffordance sourceRef={finding.sourceRef} compact />
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => onJumpToMessage(finding.sourceMessageId)}
+                      className="inline-flex items-center gap-1 text-ember-hover hover:text-warm-highlight font-semibold text-[11px] focus-ember rounded cursor-pointer"
+                    >
+                      <span>Trace source</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -200,14 +206,19 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                       </Badge>
                     )}
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => onJumpToMessage(item.sourceMessageId)}
-                    className="text-ember-hover hover:text-warm-highlight font-semibold text-[11px] inline-flex items-center gap-0.5 focus-ember rounded cursor-pointer shrink-0"
-                  >
-                    <span>Source</span>
-                    <ArrowRight className="w-2.5 h-2.5" />
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {item.sourceRef && (
+                      <SourceLinkAffordance sourceRef={item.sourceRef} compact />
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => onJumpToMessage(item.sourceMessageId)}
+                      className="text-ember-hover hover:text-warm-highlight font-semibold text-[11px] inline-flex items-center gap-0.5 focus-ember rounded cursor-pointer"
+                    >
+                      <span>Source</span>
+                      <ArrowRight className="w-2.5 h-2.5" />
+                    </button>
+                  </div>
                 </div>
                 <p className="text-xs text-text-primary/95 leading-relaxed">
                   {item.snippet}

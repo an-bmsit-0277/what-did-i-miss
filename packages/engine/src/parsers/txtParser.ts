@@ -38,13 +38,22 @@ export function parseTxtContent(rawContent: string): ParseResult {
       }
       if (!formatDetected) formatDetected = 'txt_bracketed';
 
+      const id = `txt-${msgCounter++}`;
+      const sender = bracketMatch[2].trim();
+      const text = bracketMatch[3].trim();
+      const digits = sender.replace(/\D/g, '');
+      const sourceRef =
+        digits.length >= 7
+          ? `https://wa.me/${digits}?text=${encodeURIComponent(text.slice(0, 100))}`
+          : `ref:msg:${id}`;
       currentMessage = {
-        id: `txt-${msgCounter++}`,
+        id,
         timestamp: bracketMatch[1].trim(),
-        sender: bracketMatch[2].trim(),
-        text: bracketMatch[3].trim(),
+        sender,
+        text,
         raw: line,
         lineIndex: i,
+        sourceRef,
       };
       continue;
     }
@@ -57,13 +66,23 @@ export function parseTxtContent(rawContent: string): ParseResult {
       }
       if (!formatDetected) formatDetected = 'txt_whatsapp';
 
+      const id = `txt-${msgCounter++}`;
+      const sender = waMatch[2].trim();
+      const text = waMatch[3].trim();
+      const digits = sender.replace(/\D/g, '');
+      const snippet = encodeURIComponent(text.slice(0, 100));
+      const sourceRef = digits.length >= 7
+        ? `https://wa.me/${digits}?text=${snippet}`
+        : `https://wa.me/?text=${encodeURIComponent(sender)}%3A%20${snippet}`;
+
       currentMessage = {
-        id: `txt-${msgCounter++}`,
+        id,
         timestamp: waMatch[1].trim(),
-        sender: waMatch[2].trim(),
-        text: waMatch[3].trim(),
+        sender,
+        text,
         raw: line,
         lineIndex: i,
+        sourceRef,
       };
       continue;
     }
@@ -77,12 +96,14 @@ export function parseTxtContent(rawContent: string): ParseResult {
       }
       if (!formatDetected) formatDetected = 'txt_simple';
 
+      const id = `txt-${msgCounter++}`;
       currentMessage = {
-        id: `txt-${msgCounter++}`,
+        id,
         sender: colonMatch[1].trim(),
         text: colonMatch[2].trim(),
         raw: line,
         lineIndex: i,
+        sourceRef: `ref:msg:${id}`,
       };
       continue;
     }
@@ -93,12 +114,14 @@ export function parseTxtContent(rawContent: string): ParseResult {
       currentMessage.raw += `\n${line}`;
     } else if (!currentMessage && lineTrimmed) {
       // First line didn't match a sender pattern; create fallback message
+      const id = `txt-${msgCounter++}`;
       currentMessage = {
-        id: `txt-${msgCounter++}`,
+        id,
         sender: 'Unknown Speaker',
         text: lineTrimmed,
         raw: line,
         lineIndex: i,
+        sourceRef: `ref:msg:${id}`,
       };
     }
   }

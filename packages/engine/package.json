@@ -22,6 +22,10 @@
       "types": "./src/heuristics/analyzer.ts",
       "default": "./src/heuristics/analyzer.ts"
     },
+    "./adapters": {
+      "types": "./src/adapters/index.ts",
+      "default": "./src/adapters/index.ts"
+    },
     "./sample": {
       "types": "./src/sampleConversation.ts",
       "default": "./src/sampleConversation.ts"

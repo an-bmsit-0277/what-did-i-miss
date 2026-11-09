@@ -1,0 +1,32 @@
+{
+  "participants": [
+    { "name": "Maya Lin" },
+    { "name": "Leo Chen" }
+  ],
+  "messages": [
+    {
+      "sender_name": "Maya Lin",
+      "timestamp_ms": 1710000300000,
+      "content": "Decision: We agreed to ship version 3.0 tonight.",
+      "type": "Generic"
+    },
+    {
+      "sender_name": "Leo Chen",
+      "timestamp_ms": 1710000200000,
+      "content": "I will handle the Docker container build before 6:00 PM.",
+      "type": "Generic",
+      "reply_to": {
+        "sender_name": "Maya Lin",
+        "content": "What\u00e2\u0080\u0099s the timeline on deployment?"
+      }
+    },
+    {
+      "sender_name": "Maya Lin",
+      "timestamp_ms": 1710000100000,
+      "content": "What\u00e2\u0080\u0099s the timeline on deployment? It\u00e2\u0080\u0099s urgent.",
+      "type": "Generic"
+    }
+  ],
+  "title": "Incident War Room"
+}
+

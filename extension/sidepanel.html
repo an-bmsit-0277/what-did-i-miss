@@ -3,24 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Missed. — WhatsApp Catch-Up</title>
+  <title>Missed. — WhatsApp Catch-Up Companion</title>
   <link rel="stylesheet" href="sidepanel.css">
 </head>
 <body>
   <!-- Header -->
   <header class="app-header">
     <div class="brand">
-      <div class="logo-icon">✦</div>
-      <span class="logo-text">Missed<span class="logo-dot">.</span></span>
-      <span class="privacy-badge">🔒 On-Device</span>
+      <div class="brand-eyebrow">COMPANION</div>
+      <div class="brand-title">
+        <span class="logo-serif">Missed<span class="logo-dot">.</span></span>
+        <span class="privacy-badge">🔒 On-Device</span>
+      </div>
     </div>
     <div class="header-actions">
-      <button id="refreshBtn" class="icon-btn" title="Re-analyze / Refresh">↻</button>
-      <button id="sampleBtn" class="text-btn" title="Load sample incident conversation">Load Demo</button>
+      <span id="sessionStatus" class="session-pill idle" title="Web workspace authentication status">Connecting...</span>
+      <button id="saveWorkspaceBtn" class="action-btn save-btn" title="Save conversation to Missed. web workspace">
+        Save to workspace
+      </button>
+      <button id="sampleBtn" class="text-btn" title="Load sample incident conversation">Demo</button>
+      <button id="refreshBtn" class="icon-btn" title="Re-scan / Refresh">↻</button>
     </div>
   </header>
 
-  <!-- Error / Status Notice Banner -->
+  <!-- Notice Banner -->
   <div id="noticeBanner" class="notice-banner hidden"></div>
 
   <!-- Conversation Bar -->
@@ -28,13 +34,14 @@
     <div class="conv-info">
       <div id="convTitle" class="conv-title">No conversation loaded</div>
       <div class="conv-meta">
-        <span id="msgCount">0 messages</span>
+        <span id="msgCount">0 messages indexed</span>
         <span class="bullet">•</span>
         <span id="convSource" class="source-tag">Idle</span>
       </div>
     </div>
     <button id="catchMeUpBtn" class="primary-btn">
-      <span id="catchBtnText">Catch me up</span>
+      <span id="catchBtnText">Capture current chat</span>
+      <span class="arrow-glyph">→</span>
     </button>
   </section>
 
@@ -66,25 +73,35 @@
     <!-- 1. Overview View -->
     <div id="overviewView" class="view-panel active">
       <section class="panel-card recap-card">
+        <div class="card-eyebrow">CATCH-UP RECAP</div>
         <h4 class="card-title">What Did I Miss?</h4>
         <ul id="recapBullets" class="bullets-list">
-          <li>Click "Catch me up" on an open WhatsApp chat, or click "Load Demo".</li>
+          <li>Click "Capture current chat" while viewing WhatsApp Web, or click "Demo".</li>
         </ul>
         <div id="recapTopics" class="topics-row"></div>
       </section>
 
       <section class="panel-section">
-        <h4 class="section-title">Needs Attention</h4>
+        <div class="section-header">
+          <span class="section-indicator red"></span>
+          <h4 class="section-title">Needs Attention</h4>
+        </div>
         <div id="overviewUrgent" class="cards-list"></div>
       </section>
 
       <section class="panel-section">
-        <h4 class="section-title">Decisions & Deadlines</h4>
+        <div class="section-header">
+          <span class="section-indicator sky"></span>
+          <h4 class="section-title">Decisions & Deadlines</h4>
+        </div>
         <div id="overviewDecisions" class="cards-list"></div>
       </section>
 
       <section class="panel-section">
-        <h4 class="section-title">Top Tasks</h4>
+        <div class="section-header">
+          <span class="section-indicator amber"></span>
+          <h4 class="section-title">Top Action Items</h4>
+        </div>
         <div id="overviewTasks" class="cards-list"></div>
       </section>
     </div>
@@ -102,11 +119,13 @@
 
   <!-- Footer -->
   <footer class="app-footer">
-    <span>100% on-device deterministic analysis</span>
+    <div class="footer-meta">
+      <span class="engine-badge">⚡ Deterministic Engine</span>
+      <a id="openWorkspaceLink" href="http://localhost:5173/workspace" target="_blank" class="workspace-link">Open Workspace ↗</a>
+    </div>
     <button id="copySummaryBtn" class="footer-btn">Copy Summary</button>
   </footer>
 
   <script src="sidepanel.js"></script>
 </body>
 </html>
-

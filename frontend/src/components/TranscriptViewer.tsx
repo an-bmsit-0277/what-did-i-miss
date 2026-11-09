@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import type { FindingItem, ParsedMessage } from '@missed/engine';
 import { MessageSquare, Pin, Sparkles } from 'lucide-react';
 import { Badge, CategoryBadge, EmptyState } from './ui';
+import { SourceLinkAffordance } from './SourceLinkAffordance';
 
 interface TranscriptViewerProps {
   messages: ParsedMessage[];
@@ -172,11 +173,16 @@ export const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
                     </span>
                   </div>
 
-                  {msg.timestamp && (
-                    <span className="text-[10px] text-text-muted font-mono shrink-0">
-                      {msg.timestamp}
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {msg.sourceRef && (
+                      <SourceLinkAffordance sourceRef={msg.sourceRef} compact />
+                    )}
+                    {msg.timestamp && (
+                      <span className="text-[10px] text-text-muted font-mono">
+                        {msg.timestamp}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Message Text */}

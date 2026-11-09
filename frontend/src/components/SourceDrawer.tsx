@@ -2,6 +2,7 @@ import React from 'react';
 import type { ParsedMessage } from '@missed/engine';
 import { Pin, ExternalLink } from 'lucide-react';
 import { Button, Modal } from './ui';
+import { SourceLinkAffordance } from './SourceLinkAffordance';
 
 interface SourceDrawerProps {
   isOpen: boolean;
@@ -38,9 +39,14 @@ export const SourceDrawer: React.FC<SourceDrawerProps> = ({
       maxWidthClass="max-w-md"
       footer={
         <>
-          <span className="text-[11px] font-mono text-text-muted">
-            ID: {targetMsg.id}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-mono text-text-muted">
+              ID: {targetMsg.id}
+            </span>
+            {targetMsg.sourceRef && (
+              <SourceLinkAffordance sourceRef={targetMsg.sourceRef} compact />
+            )}
+          </div>
           <div className="flex items-center gap-2">
             {onOpenFullTranscript && (
               <Button

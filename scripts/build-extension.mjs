@@ -23,6 +23,21 @@ async function buildAndValidateExtension() {
     },
   });
 
+  const contentEntryPoint = path.join(extDir, 'content.entry.js');
+  const contentOutFile = path.join(extDir, 'content.js');
+
+  await build({
+    entryPoints: [contentEntryPoint],
+    bundle: true,
+    format: 'iife',
+    target: ['es2022'],
+    outfile: contentOutFile,
+    charset: 'utf8',
+    banner: {
+      js: '// Missed. — WhatsApp Web Content Script Bundle (Generated from extension/content.entry.js + @missed/engine via esbuild)',
+    },
+  });
+
   // Validate manifest.json
   const manifestPath = path.join(extDir, 'manifest.json');
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
@@ -51,6 +66,7 @@ async function buildAndValidateExtension() {
     'manifest.json',
     'background.js',
     'content.js',
+    'web-auth-bridge.js',
     'sidepanel.html',
     'sidepanel.css',
     'sidepanel.js',

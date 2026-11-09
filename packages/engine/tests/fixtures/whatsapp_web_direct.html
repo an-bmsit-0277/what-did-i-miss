@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WhatsApp Web Mock - Maya Lin (Direct 1:1)</title>
+</head>
+<body>
+  <div id="app">
+    <div id="main">
+      <!-- Conversation Header -->
+      <header data-testid="conversation-header">
+        <div class="header-content">
+          <div role="button" aria-label="Chat details">
+            <span title="Maya Lin" dir="auto" class="_ak8q">Maya Lin</span>
+          </div>
+          <span class="chat-subtitle" dir="auto">online</span>
+        </div>
+      </header>
+
+      <!-- Messages Pane -->
+      <div data-testid="conversation-panel-messages" class="copyable-area" role="region">
+        <!-- Message 1: Incoming from Maya Lin (no group author label, attributed to header title) -->
+        <div class="message-in" data-testid="msg-container" data-id="false_15550192834@c.us_3EB0AA11223344">
+          <div class="_ak8o" data-pre-plain-text="[14:20, 10/09/2026] Maya Lin: ">
+            <div class="copyable-text">
+              <span class="selectable-text _ao3e" dir="ltr">Hey, did you get a chance to review the Phase 5 architecture doc?</span>
+            </div>
+            <div data-testid="msg-meta">
+              <span class="_ak8i" dir="auto">14:20</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message 2: Outgoing from You -->
+        <div class="message-out" data-testid="msg-container" data-id="true_15550192834@c.us_3EB0BB22334455">
+          <div class="_ak8o" data-pre-plain-text="[14:22, 10/09/2026] You: ">
+            <div class="copyable-text">
+              <span class="selectable-text _ao3e" dir="ltr">Yes! Looking clean. Let us make sure we test the extension companion thoroughly.</span>
+            </div>
+            <div data-testid="msg-meta">
+              <span class="_ak8i" dir="auto">14:22</span>
+              <span data-icon="msg-dblcheck">✓✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+

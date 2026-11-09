@@ -1,0 +1,5 @@
+[BINARY_HEADER_0x89_PNG_NON_CHAT_DATA]
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+4239847293847293847923847928374923847928374923847923847928347
+

@@ -13,6 +13,7 @@ import {
   EmptyState,
   PriorityBadge,
 } from './ui';
+import { SourceLinkAffordance } from './SourceLinkAffordance';
 
 interface ImportantViewProps {
   findings: FindingItem[];
@@ -153,14 +154,19 @@ export const ImportantView: React.FC<ImportantViewProps> = ({
                   <AnalyzerBadge analyzer={item.analyzer} className="hidden sm:inline-flex" />
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => onJumpToMessage(item.sourceMessageId)}
-                  className="text-ember-hover hover:text-warm-highlight font-semibold inline-flex items-center gap-1 ml-auto shrink-0 focus-ember rounded cursor-pointer"
-                >
-                  <span>Source</span>
-                  <ArrowRight className="w-3 h-3" />
-                </button>
+                <div className="flex items-center gap-2 ml-auto shrink-0">
+                  {item.sourceRef && (
+                    <SourceLinkAffordance sourceRef={item.sourceRef} compact />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => onJumpToMessage(item.sourceMessageId)}
+                    className="text-ember-hover hover:text-warm-highlight font-semibold inline-flex items-center gap-1 focus-ember rounded cursor-pointer"
+                  >
+                    <span>Source</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}

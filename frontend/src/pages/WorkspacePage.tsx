@@ -8,6 +8,7 @@ import {
   type ParsedMessage,
   type ActiveTab,
   type ConversationAnalysis,
+  type AdapterParseResult,
 } from '@missed/engine';
 import { MissedHeader } from '../components/MissedHeader';
 import { ConversationBar } from '../components/ConversationBar';
@@ -21,6 +22,7 @@ import { TranscriptViewer } from '../components/TranscriptViewer';
 import { SourceDrawer } from '../components/SourceDrawer';
 import { AboutModal } from '../components/AboutModal';
 import { ErrorBanner } from '../components/ErrorBanner';
+import { ImportModal } from '../components/ImportModal';
 import {
   Badge,
   Button,
@@ -87,6 +89,7 @@ export const WorkspacePage: React.FC = () => {
   const [warning, setWarning] = useState<string | undefined>(undefined);
   const [isAboutOpen, setIsAboutOpen] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
   const [activeNav, setActiveNav] = useState<'conversations' | 'import' | 'settings'>('conversations');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState<string>('');
@@ -142,14 +145,35 @@ export const WorkspacePage: React.FC = () => {
         const detail = await api.getConversation(accessToken, id);
 
         // Map persisted messages to ParsedMessage format
-        const mappedMessages: ParsedMessage[] = detail.messages.map((m) => ({
-          id: m.externalId || m.id,
-          sender: m.sender,
-          text: m.text,
-          timestamp: m.timestamp || undefined,
-          raw: m.text,
-          lineIndex: m.seq,
-        }));
+        const mappedMessages: ParsedMessage[] = detail.messages.map((m) => {
+          let sourceRef = (m as any).sourceRef;
+          if (!sourceRef) {
+            const digits = (m.sender || '').replace(/\D/g, '');
+            if (digits.length >= 7) {
+              const snippet = encodeURIComponent((m.text || '').slice(0, 100));
+              sourceRef = `https://wa.me/${digits}?text=${snippet}`;
+            } else if (
+              m.sender &&
+              (detail.conversation.sourceFormat?.includes('whatsapp') ||
+                detail.conversation.title?.toLowerCase().includes('whatsapp') ||
+                detail.conversation.title?.toLowerCase().includes('staging'))
+            ) {
+              const snippet = encodeURIComponent((m.text || '').slice(0, 100));
+              sourceRef = `https://wa.me/?text=${encodeURIComponent(m.sender)}%3A%20${snippet}`;
+            } else {
+              sourceRef = `ref:msg:${m.externalId || m.id}`;
+            }
+          }
+          return {
+            id: m.externalId || m.id,
+            sender: m.sender,
+            text: m.text,
+            timestamp: m.timestamp || undefined,
+            raw: m.text,
+            lineIndex: m.seq,
+            sourceRef,
+          };
+        });
 
         setMessages(mappedMessages);
         setActiveFileName(detail.conversation.title);
@@ -244,6 +268,59 @@ export const WorkspacePage: React.FC = () => {
         setIsSyncingCloud(true);
         const saved = await api.createConversation(accessToken, {
           title: fileName.replace(/\.[^/.]+$/, ''),
+          fileName,
+          content,
+        });
+        setIsCloudSaved(true);
+        setActiveCloudId(saved.conversation.id);
+        await fetchCloudConversations();
+      } catch (saveErr: any) {
+        console.warn('Could not auto-save to cloud:', saveErr);
+        // Do not crash local analysis if cloud save fails
+        setWarning('Analyzed locally. Cloud persistence failed: ' + saveErr.message);
+      } finally {
+        setIsSyncingCloud(false);
+      }
+    }
+  };
+
+  // Handle Confirmed Multi-Platform Import from ImportModal
+  const handleConfirmImport = async (
+    content: string,
+    fileName: string,
+    result: AdapterParseResult
+  ) => {
+    setError(undefined);
+    setWarning(undefined);
+
+    if (!result.success || result.messages.length === 0) {
+      setError(result.error || 'Failed to parse conversation export.');
+      return;
+    }
+
+    if (result.warning) {
+      setWarning(result.warning);
+    }
+
+    const title = result.conversation?.title || fileName.replace(/\.[^/.]+$/, '');
+    setMessages(result.messages);
+    setActiveFileName(title);
+    setIsSampleLoaded(false);
+    setIsCloudSaved(false);
+    setActiveCloudId(null);
+    setRawFileContent(content);
+    setCompletedTaskIds(new Set());
+    setHighlightedMessageId(null);
+    setSearchQuery('');
+    setSelectedParticipant('all');
+    handleCatchMeUp();
+
+    // Automatically attempt cloud save if user is authenticated
+    if (accessToken) {
+      try {
+        setIsSyncingCloud(true);
+        const saved = await api.createConversation(accessToken, {
+          title,
           fileName,
           content,
         });
@@ -356,7 +433,7 @@ export const WorkspacePage: React.FC = () => {
   };
 
   const handleTriggerUpload = () => {
-    fileInputRef.current?.click();
+    setIsImportModalOpen(true);
   };
 
   const handleNativeFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1238,6 +1315,14 @@ export const WorkspacePage: React.FC = () => {
           </div>
         </div>
       </Modal>
+
+      {/* Styled Multi-Platform Import Modal */}
+      <ImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onConfirmImport={handleConfirmImport}
+        isSyncing={isSyncingCloud}
+      />
     </div>
   );
 };

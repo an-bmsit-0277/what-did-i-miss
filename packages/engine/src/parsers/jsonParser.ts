@@ -141,6 +141,8 @@ export function parseJsonContent(rawContent: string): ParseResult {
       continue;
     }
 
+    const sourceRef = obj.ts ? `ref:slack:${obj.ts}` : `ref:msg:${id}`;
+
     messages.push({
       id,
       sender: String(sender).trim(),
@@ -148,6 +150,7 @@ export function parseJsonContent(rawContent: string): ParseResult {
       text: cleanText,
       raw: JSON.stringify(item),
       lineIndex: idx,
+      sourceRef,
     });
   }
 

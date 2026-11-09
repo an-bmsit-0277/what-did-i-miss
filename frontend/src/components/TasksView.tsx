@@ -9,6 +9,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { Badge, EmptyState, PriorityBadge, SegmentedTabs, type TabItem } from './ui';
+import { SourceLinkAffordance } from './SourceLinkAffordance';
 
 interface TasksViewProps {
   tasks: FindingItem[];
@@ -141,14 +142,19 @@ export const TasksView: React.FC<TasksViewProps> = ({
                     <span className="truncate">
                       Assigned by <strong className="text-text-primary font-medium">{task.sender}</strong>
                     </span>
-                    <button
-                      type="button"
-                      onClick={() => onJumpToMessage(task.sourceMessageId)}
-                      className="text-ember-hover hover:text-warm-highlight font-semibold inline-flex items-center gap-1 ml-2 focus-ember rounded cursor-pointer shrink-0"
-                    >
-                      <span>Source</span>
-                      <ArrowRight className="w-3 h-3" />
-                    </button>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {task.sourceRef && (
+                        <SourceLinkAffordance sourceRef={task.sourceRef} compact />
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => onJumpToMessage(task.sourceMessageId)}
+                        className="text-ember-hover hover:text-warm-highlight font-semibold inline-flex items-center gap-1 focus-ember rounded cursor-pointer"
+                      >
+                        <span>Source</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
