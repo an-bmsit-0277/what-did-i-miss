@@ -1,0 +1,42 @@
+{
+  "name": "Platform Infrastructure",
+  "type": "public_supergroup",
+  "id": 98765432,
+  "messages": [
+    {
+      "id": 1,
+      "type": "service",
+      "date": "2026-10-09T09:00:00",
+      "date_unixtime": "1710000000",
+      "actor": "Maya Lin",
+      "action": "create_group",
+      "text": ""
+    },
+    {
+      "id": 2,
+      "type": "message",
+      "date": "2026-10-09T09:05:00",
+      "date_unixtime": "1710000300",
+      "from": "Maya Lin",
+      "from_id": "user1001",
+      "text": "Starting the emergency triage session."
+    },
+    {
+      "id": 3,
+      "type": "message",
+      "date": "2026-10-09T09:08:00",
+      "date_unixtime": "1710000480",
+      "from": "Leo Chen",
+      "from_id": "user1002",
+      "reply_to_message_id": 2,
+      "text": [
+        "CRITICAL: ",
+        { "type": "bold", "text": "Memory leak detected" },
+        " in ingestion pipeline. Action item: ",
+        { "type": "mention", "text": "@Leo" },
+        " deploy hotfix before EOD."
+      ]
+    }
+  ]
+}
+

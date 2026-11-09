@@ -1,12 +1,13 @@
-# ARCHITECTURE — What Did I Miss?
+# ARCHITECTURE — What Did I Miss? (Missed.)
 
 ## 1. Project
 
-**Project Name:** What Did I Miss?  
-**Repository:** `What-Did-I-Miss`  
-**Application Type:** Single-Page Web Application (SPA)  
-**Primary Execution Model:** 100% Client-Side In-Browser Processing (Zero-Backend)  
-**Target Environment:** Modern Web Browsers (Chrome, Edge, Firefox, Safari)
+**Project Name:** What Did I Miss? (Missed.)
+**Repository:** `What-Did-I-Miss`
+**Architecture Type:** npm Workspaces Monorepo (`packages/engine`, `frontend`, `server`, plus `extension/`)
+**Execution Modes:**
+1. **Local / Demo Mode (Client-Side):** 100% in-browser deterministic parsing and analysis with zero network calls.
+2. **Authenticated Workspace Mode (`server/` + Supabase):** Opt-in authenticated persistence where conversations, messages, deterministic findings, tasks, and privacy settings are stored per-user under strict server-side bearer token verification and PostgreSQL Row-Level Security (RLS).
 
 ---
 
@@ -16,7 +17,7 @@
 Knowledge workers returning from absences or focused work face long streams of unread chat messages across Slack, Teams, WhatsApp, and Discord. Reading sequentially is slow, and critical information — such as blockers, decisions, deadlines, and assigned tasks — is easily overlooked.
 
 **The Solution:**  
-A lightweight, privacy-preserving web dashboard that imports exported chat files or loads an instant sample conversation, normalizes the messages, and runs deterministic rule-based NLP heuristics to extract and prioritize key insights:
+A privacy-first catch-up platform that imports exported chat files (`.txt` / `.json`) or loads an instant sample conversation, normalizes the messages via the shared `@missed/engine` package, and extracts prioritized insights:
 - **Concise Executive Recap**
 - **Action Items & Task Assignments**
 - **Key Decisions**
@@ -32,8 +33,8 @@ Every insight is prioritized by urgency/relevance and deep-linked directly to th
 
 1. **Busy Engineers & Leads:** Catching up on incident triage channels, deployment war rooms, or project planning threads after being offline.
 2. **Product Managers & Scrum Masters:** Extracting decisions, blockers, and assigned action items without reading hundreds of chat messages.
-3. **Privacy-Conscious Professionals:** Organizations that prohibit uploading proprietary chat logs to external cloud AI APIs or unknown servers.
-4. **Hackathon Evaluators:** Looking for an immediate, responsive, working demo with zero setup overhead or API key configuration.
+3. **Privacy-Conscious Professionals:** Organizations and individuals who require deterministic local analysis by default and strict tenant isolation when saving conversation workspaces.
+4. **Evaluators & Contributors:** Looking for an immediate, responsive demo (`Load Sample`) alongside a well-tested full-stack TypeScript codebase.
 
 ---
 
@@ -41,153 +42,133 @@ Every insight is prioritized by urgency/relevance and deep-linked directly to th
 
 ```mermaid
 flowchart TD
-    A["User Arrives at App"] --> B{"Choose Action"}
-    B -->|"One-Click Demo"| C["Click 'Load Sample Conversation'"]
-    B -->|"Local File"| D["Drop .txt or .json File / Native Picker"]
-    
-    C --> E["Load Built-in Incident Dataset"]
-    D --> F["Browser FileReader Reads Text (On-Device)"]
-    
-    F --> G["Parse & Normalize into ParsedMessage[]"]
-    E --> G
-    
-    G --> H["Run Heuristic Analysis & Scoring Engine"]
-    H --> I["Update Reactive React State"]
-    
-    I --> J["Render Executive Dashboard"]
-    J --> K["Explore Categorized Finding Cards (Urgent, Actions, Decisions, etc.)"]
-    J --> L["Filter by Category, Participant, or '@username'"]
-    J --> M["Search Transcript in Real Time"]
-    
-    K -->|"Click Finding Card"| N["Auto-Scroll & Pulse Highlight Source Message in Transcript"]
-    J -->|"Click Export"| O["Copy Markdown Summary to Clipboard"]
+    A["User Arrives at App"] --> B{"Choose Mode"}
+    B -->|"Local / Demo Mode"| C["Load Built-in Sample or Local .txt/.json"]
+    B -->|"Authenticated API Mode"| D["Sign In / Sign Up via /api/auth/*"]
+
+    C --> E["@missed/engine Parses & Analyzes in Browser"]
+    E --> F["Render Catch-Up Dashboard"]
+
+    D --> G["POST /api/conversations withBearer JWT"]
+    G --> H["Server Verifies Token + Parses & Analyzes via @missed/engine"]
+    H --> I["Atomic Persist: conversations -> messages -> findings -> tasks (RLS Scoped)"]
+    I --> F
 ```
 
 ---
 
-## 5. Frontend Architecture
+## 5. Monorepo & Frontend Architecture
 
 ### 5.1. Tech Stack
-- **Framework:** React 19 (`react`, `react-dom`)
-- **Build Tool:** Vite 8 (Fast HMR, optimized static build)
-- **Language:** TypeScript 5.8+ (Strict type safety across data pipelines)
-- **Styling:** Tailwind CSS v4 (`@tailwindcss/vite`)
-- **Icons:** Lucide React (`lucide-react`)
-- **Routing:** Single-page view with reactive modal/split-pane layout
+- **Monorepo Workspaces:** npm workspaces (`packages/engine`, `frontend`, `server`)
+- **Shared Analysis Engine (`@missed/engine`):** Pure TypeScript zero-dependency package containing parsers, deterministic heuristic detectors, recap generator, and built-in sample dataset
+- **Frontend (`frontend/`):** React 19, Vite 8, TypeScript 5.8+, Tailwind CSS v4, Lucide React
+- **Backend (`server/`):** Hono HTTP framework, `@hono/node-server`, Zod (strict runtime validation), `@supabase/supabase-js`
+- **Database & Auth:** Supabase Auth (JWT) + Supabase PostgreSQL with Row-Level Security (RLS)
+- **Browser Extension (`extension/`):** Chrome Manifest V3 side panel & WhatsApp Web content script built from `@missed/engine`
 
-### 5.2. Modular Directory Structure
+### 5.2. Repository Directory Structure
 ```text
-frontend/src/
-├── assets/                  # Static assets and icons
-├── components/              # Modular UI Presentation
-│   ├── layout/
-│   │   ├── Header.tsx       # Branding, privacy badge, reset, copy actions
-│   │   └── Footer.tsx       # Attribution & tech stack footer
-│   ├── import/
-│   │   ├── Dropzone.tsx     # Drag-and-drop file target + file input
-│   │   └── FormatGuide.tsx  # Collapsible documentation of supported formats
-│   ├── dashboard/
-│   │   ├── RecapCard.tsx    # High-level stats, participants, top topics
-│   │   ├── FilterBar.tsx    # Category pills, search bar, personalized filter
-│   │   ├── FindingsList.tsx # List of categorized insight cards
-│   │   └── FindingCard.tsx  # Card with category badge, urgency pill, source jump
-│   ├── transcript/
-│   │   ├── TranscriptViewer.tsx # Virtualized/scrollable message list
-│   │   └── MessageRow.tsx       # Individual message with deep-link highlight
-│   └── common/
-│       ├── Badge.tsx        # Urgency & category badges
-│       └── ErrorBanner.tsx  # Graceful error alerts
-├── data/
-│   └── sampleConversation.ts # Built-in realistic incident catch-up conversation
-├── heuristics/              # Deterministic Pattern & Analysis Engine
-│   ├── actionItemDetector.ts# Imperative verbs, TODOs, assignments
-│   ├── decisionDetector.ts  # Approvals, consensus, agreements
-│   ├── deadlineDetector.ts  # Temporal expressions, dates, EOD
-│   ├── urgencyDetector.ts   # Critical keywords, P0 alerts, blockers
-│   ├── mentionDetector.ts   # @mentions and direct queries
-│   ├── recapGenerator.ts    # Topic extraction, summary bullet synthesis
-│   └── analyzer.ts          # Orchestrator aggregating findings & scoring
-├── parsers/                 # Normalization & File Ingestion
-│   ├── jsonParser.ts        # Parses array, object envelope, Slack JSON
-│   ├── txtParser.ts         # Bracketed, WhatsApp, and simple colon formats
-│   └── index.ts             # File type detection and parser dispatch
-├── types/                   # Unified TypeScript Contracts
-│   ├── conversation.ts      # ParsedMessage, RawMessage interfaces
-│   └── analysis.ts          # FindingItem, UrgencyLevel, ConversationAnalysis
-├── App.tsx                  # Root state coordinator
-├── main.tsx                 # Entry point
-└── index.css                # Tailwind styling
+What-Did-I-Miss/
+├── packages/
+│   └── engine/                  # Shared deterministic parsing & heuristic engine (@missed/engine)
+│       ├── src/
+│       │   ├── heuristics/      # analyzer.ts, detectors.ts, recapGenerator.ts
+│       │   ├── parsers/         # index.ts, jsonParser.ts, txtParser.ts
+│       │   ├── sampleConversation.ts
+│       │   ├── types.ts
+│       │   └── index.ts
+│       └── tests/               # Engine unit tests
+├── server/                      # Backend API & persistence workspace
+│   ├── migrations/
+│   │   └── 001_initial_schema.sql # PostgreSQL tables, indexes, triggers & RLS policies
+│   ├── src/
+│   │   ├── db/
+│   │   │   ├── types.ts           # AuthAdapter & DataRepository contracts
+│   │   │   ├── supabaseAdapter.ts # Supabase Auth + RLS-scoped PostgreSQL repository
+│   │   │   └── testMemoryAdapter.ts # Isolated in-memory adapter for tests & offline dev
+│   │   ├── lib/
+│   │   │   ├── env.ts             # Validated environment parser & production guardrails
+│   │   │   ├── errors.ts          # ApiError & centralized error serializer
+│   │   │   └── requestBody.ts     # Byte-limited JSON body reader (10 MiB cap)
+│   │   ├── middleware/
+│   │   │   ├── auth.ts            # requireAuth Bearer token verification
+│   │   │   ├── rateLimit.ts       # Sliding-window rate limiter
+│   │   │   └── requestContext.ts  # X-Request-Id & security headers
+│   │   ├── routes/
+│   │   │   ├── authRoutes.ts      # /api/auth/*
+│   │   │   ├── conversationRoutes.ts # /api/conversations/*
+│   │   │   ├── taskRoutes.ts      # /api/tasks/:findingId
+│   │   │   └── settingsRoutes.ts  # /api/settings
+│   │   ├── schemas/
+│   │   │   └── apiSchemas.ts      # Strict Zod request & response schemas
+│   │   ├── app.ts                 # Hono application factory
+│   │   └── index.ts               # Node HTTP server entrypoint
+│   └── tests/
+│       ├── api.test.ts            # 14 security, auth, validation & persistence tests
+│       └── migrationSchema.test.ts# SQL schema & RLS verification tests
+├── frontend/                    # React 19 + Vite 8 web application
+└── extension/                   # Chrome Manifest V3 extension
 ```
 
-### 5.3. State Management
-- **In-Memory Reactive State:** All state is handled cleanly via standard React hooks (`useState`, `useMemo`, `useCallback`, `useRef`).
-- **No Complex External Stores:** No Redux or Zustand needed; keeping the app lightweight and zero-dependency.
-- **Deep-Link Ref Map:** A `useRef<Map<string, HTMLDivElement>>` maps `messageId` to DOM elements for instant smooth-scrolling (`element.scrollIntoView({ behavior: 'smooth', block: 'center' })`) and CSS pulse highlight.
+---
+
+## 6. Backend Architecture (`server/`)
+
+- **Framework:** Built with **Hono** and **TypeScript (`strict: true`)**.
+- **Authentication & Authorization (`requireAuth`):**
+  - Extracts `Authorization: Bearer <token>` and verifies it server-side via `AuthAdapter.verifyToken()`.
+  - Rejects missing, malformed, expired, or signed-out tokens with `401 UNAUTHORIZED`.
+  - Never trusts `owner_id` or `user_id` from request bodies, query strings, or headers.
+- **Validation & Abuse Protection:**
+  - All request bodies, query parameters, URL UUIDs, and responses are validated with **Zod** (`.strict()` object schemas).
+  - Pre-parse payload byte limit (`MAX_FILE_SIZE_BYTES = 10 MiB`) rejects oversized imports with `413 PAYLOAD_TOO_LARGE` before allocating large parse trees.
+  - Sliding-window rate limiting protects `/api/auth/signup`, `/api/auth/signin`, and `POST /api/conversations` (`429 RATE_LIMITED`).
+- **Storage Modes & Production Safety:**
+  - `STORAGE_MODE=supabase` (default and strictly enforced when `NODE_ENV=production`) uses `SupabaseAuthAdapter` and `SupabaseDataRepository`.
+  - `STORAGE_MODE=memory` uses `InMemoryAuthAdapter` and `InMemoryDataRepository` for deterministic automated tests and explicit offline local development. Startup fails immediately if `NODE_ENV=production` is combined with `STORAGE_MODE=memory` or missing Supabase credentials.
 
 ---
 
-## 6. Backend Architecture
+## 7. Database Design & Row-Level Security (`server/migrations/001_initial_schema.sql`)
 
-- **Status:** **Zero-Backend (Client-Only).**
-- **Rationale for MVP:**
-  1. **Strict Privacy:** Chat logs never travel over HTTP or leave the user's computer.
-  2. **Zero Latency:** Parsing and heuristics complete in tens of milliseconds in-browser.
-  3. **Zero Infrastructure:** No servers, no database provisioning, no deployment failures.
-  4. **Hackathon Velocity:** Allows 100% of engineering effort to be dedicated to parser resilience, heuristic accuracy, and visual polish.
+### 7.1. Core Tables
+1. **`public.conversations`**: Stores conversation metadata, source format, message/participant counts, `participants` (JSONB), `top_topics` (JSONB), `summary_bullets` (JSONB), and `owner_id` (`REFERENCES auth.users(id) ON DELETE CASCADE`). Defines `UNIQUE (id, owner_id)`.
+2. **`public.messages`**: Stores normalized messages (`external_id`, `seq`, `sender`, `text`, `timestamp`, `conversation_id`, `owner_id`) with composite foreign key `(conversation_id, owner_id) REFERENCES public.conversations(id, owner_id) ON DELETE CASCADE`.
+3. **`public.findings`**: Stores extracted findings (`type`, `title`, `snippet`, `priority`, `source_message_id`, `source_external_id`, `sender`, `timestamp`, `assignee`, `deadline`, `relevance_score`, `analyzer = 'deterministic' | 'ai'`, `owner_id`) with composite foreign key `(conversation_id, owner_id) REFERENCES public.conversations(id, owner_id) ON DELETE CASCADE`.
+4. **`public.tasks`**: Stores task completion state (`finding_id UNIQUE`, `conversation_id`, `owner_id`, `completed`, `completed_at`) with composite foreign key `(finding_id, conversation_id, owner_id) REFERENCES public.findings(id, conversation_id, owner_id) ON DELETE CASCADE`.
+5. **`public.user_settings`**: Stores per-user privacy and retention settings (`owner_id PRIMARY KEY`, `ai_enabled DEFAULT false`, `ai_consent_at`, `retention_days IN (7, 30, 90, 365)`).
 
----
-
-## 7. Database Design
-
-- **Status:** **Zero-Database (Ephemeral In-Memory).**
-- Conversation exports are loaded into JavaScript memory during the browser session.
-- **Session Cleanup:** Closing the tab or clicking "Clear / New File" completely wipes the conversation from memory.
-- **Optional Local Storage:** Only non-sensitive preferences (e.g., collapsed UI states) may be stored in `localStorage`. Chat text is **never** persisted to persistent disk storage.
+### 7.2. Defense-in-Depth Row-Level Security (RLS)
+- Every table executes both `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` and `ALTER TABLE ... FORCE ROW LEVEL SECURITY`.
+- Explicit `SELECT`, `INSERT`, `UPDATE`, and `DELETE` policies enforce `auth.uid() = owner_id` (plus parent conversation/finding ownership checks on `INSERT`).
+- `SupabaseDataRepository` creates per-request clients scoped with the caller's Bearer JWT (`SUPABASE_ANON_KEY` + `Authorization: Bearer <token>`) so PostgreSQL RLS is active on every query, in addition to explicit `.eq('owner_id', ownerId)` filters.
+- `SUPABASE_SERVICE_ROLE_KEY` is never used for routine CRUD queries; it is isolated strictly to `auth.admin.deleteUser(userId)` during verified account deletion (`DELETE /api/auth/account`).
 
 ---
 
-## 8. APIs & Internal Module Contracts
+## 8. APIs & Shared Engine Contracts
 
-Because there are no network endpoints, all operations are structured as strictly typed, pure TypeScript functional interfaces:
+See [docs/API.md](./API.md) for full REST endpoint specifications and request/response schemas.
 
-### 8.1. Parser Contract (`src/parsers/index.ts`)
+### 8.1. Shared Parser Contract (`@missed/engine`)
 ```typescript
 export interface ParseResult {
   success: boolean;
   messages: ParsedMessage[];
   formatDetected?: 'json_standard' | 'json_slack' | 'txt_bracketed' | 'txt_whatsapp' | 'txt_simple';
   error?: string;
-  warnings?: string[];
+  warning?: string;
 }
 
-export function parseConversation(content: string, fileName: string): ParseResult;
+export function parseConversation(content: string, fileName?: string): ParseResult;
 ```
 
-### 8.2. Heuristic Analysis Contract (`src/heuristics/analyzer.ts`)
+### 8.2. Shared Heuristic Analysis Contract (`@missed/engine`)
 ```typescript
-export interface AnalysisOptions {
-  userFilter?: string; // Optional user name/handle for personalized filter
-}
-
-export function analyzeConversation(
-  messages: ParsedMessage[],
-  options?: AnalysisOptions
-): ConversationAnalysis;
+export function analyzeConversation(messages: ParsedMessage[]): ConversationAnalysis;
 ```
 
-### 8.3. Deep Linking Contract
-```typescript
-export type JumpToMessageFn = (messageId: string) => void;
-```
-
----
-
-## 9. External Services & Cloud APIs
-
-- **External Services:** **None.**
-- No OpenAI, Google Gemini, or Anthropic API endpoints.
-- No analytics trackers or CDN script tags.
-- The application is fully capable of running completely offline without an active internet connection after initial static asset load.
 
 ---
 

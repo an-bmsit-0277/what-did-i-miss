@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WhatsApp Web Mock - Project Apollo Staging</title>
+</head>
+<body>
+  <div id="app">
+    <div id="main">
+      <!-- Conversation Header -->
+      <header data-testid="conversation-header">
+        <div class="header-content">
+          <div role="button" aria-label="Chat details">
+            <span title="Project Apollo Staging" dir="auto" class="_ak8q">Project Apollo Staging</span>
+          </div>
+          <span class="chat-subtitle" dir="auto">Maya Lin, +1 (555) 019-2834, Leo Chen, You</span>
+        </div>
+      </header>
+
+      <!-- Messages Pane -->
+      <div data-testid="conversation-panel-messages" class="copyable-area" role="region" aria-label="Message list">
+        <!-- Message 1: System Notice -->
+        <div class="system-message" data-testid="system-message">
+          <span dir="auto">Messages and calls are end-to-end encrypted. No one outside of this chat can read or listen to them.</span>
+        </div>
+
+        <!-- Message 2: Group Incoming from +1 (555) 019-2834 (Urgent Alert) -->
+        <div class="message-in" data-testid="msg-container" data-id="false_120363024892@g.us_3EB0C895782B4B3294E2_15550192834@c.us">
+          <div class="_ak8o" data-pre-plain-text="[09:14, 10/09/2026] +1 (555) 019-2834: ">
+            <span data-testid="author" class="_ak8q" dir="auto">+1 (555) 019-2834</span>
+            <div class="copyable-text">
+              <span class="selectable-text _ao3e" dir="ltr">CRITICAL outage in the auth gateway: 502 Bad Gateway across all regions. Immediate action required.</span>
+            </div>
+            <div data-testid="msg-meta">
+              <span class="_ak8i" dir="auto">09:14</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message 3: Outgoing from You -->
+        <div class="message-out" data-testid="msg-container" data-id="true_120363024892@g.us_3EB09911223344556677">
+          <div class="_ak8o" data-pre-plain-text="[09:15, 10/09/2026] You: ">
+            <div class="copyable-text">
+              <span class="selectable-text _ao3e" dir="ltr">Checking the staging cluster metrics right now. Pulling CloudWatch logs.</span>
+            </div>
+            <div data-testid="msg-meta">
+              <span class="_ak8i" dir="auto">09:15</span>
+              <span data-icon="msg-dblcheck" aria-label=" Read ">✓✓</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message 4: Group Incoming from Maya Lin (Action Item & Mention) -->
+        <div class="message-in" data-testid="msg-container" data-id="false_120363024892@g.us_3EB0778899AABBCCDDEE_maya@c.us">
+          <div class="_ak8o" data-pre-plain-text="[09:16, 10/09/2026] Maya Lin: ">
+            <span data-testid="author" class="_ak8q" dir="auto">Maya Lin</span>
+            <div class="copyable-text">
+              <span class="selectable-text _ao3e" dir="ltr">@Leo please deploy hotfix v2.4.1 by 10:30 AM before customer traffic peaks.</span>
+            </div>
+            <div data-testid="msg-meta">
+              <span class="_ak8i" dir="auto">09:16</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message 5: Group Incoming from Leo Chen (Decision) -->
+        <div class="message-in" data-testid="msg-container" data-id="false_120363024892@g.us_3EB01122334455667788_leo@c.us">
+          <div class="_ak8o" data-pre-plain-text="[09:17, 10/09/2026] Leo Chen: ">
+            <span data-testid="author" class="_ak8q" dir="auto">Leo Chen</span>
+            <div class="copyable-text">
+              <span class="selectable-text _ao3e" dir="ltr">Decision: We agreed to roll back the auth gateway to v2.4.0 while preparing the fix.</span>
+            </div>
+            <div data-testid="msg-meta">
+              <span class="_ak8i" dir="auto">09:17</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message 6: Media with Caption from Leo Chen -->
+        <div class="message-in" data-testid="msg-container" data-id="false_120363024892@g.us_3EB09988776655443322_leo@c.us">
+          <div class="_ak8o">
+            <span data-testid="author" class="_ak8q" dir="auto">Leo Chen</span>
+            <div data-testid="image-thumb" class="media-preview">
+              <img src="blob:https://web.whatsapp.com/mock-image-uuid" alt="screenshot">
+            </div>
+            <div class="copyable-text">
+              <span class="selectable-text _ao3e" dir="ltr">Here is the latency spike dashboard screenshot.</span>
+            </div>
+            <div data-testid="msg-meta">
+              <span class="_ak8i" dir="auto">09:18</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message 7: Audio Voice Note without text (Omitted State) -->
+        <div class="message-in" data-testid="msg-container" data-id="false_120363024892@g.us_3EB03344556677889900_maya@c.us">
+          <div class="_ak8o">
+            <span data-testid="author" class="_ak8q" dir="auto">Maya Lin</span>
+            <div data-testid="audio-play" aria-label="Play voice message">
+              <button data-icon="audio-file">Play</button>
+            </div>
+            <div data-testid="msg-meta">
+              <span class="_ak8i" dir="auto">09:19</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>

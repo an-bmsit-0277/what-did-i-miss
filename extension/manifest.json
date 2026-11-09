@@ -3,24 +3,30 @@
   "name": "Missed. — WhatsApp Catch-Up Companion",
   "version": "1.0.0",
   "description": "Catch up on unread WhatsApp Web conversations with one click. 100% on-device heuristic analysis.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArQ4CMXUQ5jx5b5gs/zHgQnjo2BrVGGJyfsBiFgWIt2DnC4MVBEP3EDAmZS4UF8dJ5li2xBZJ0U7ydnMlLKq0YQHOCSFi2896Vl8EQJgD/2zlsv1lQZVyDzAS8nnp2hVIBZTw7XHKSKYiuuTP2T9HcrdGgPmXfvzlwwquYRibCdQx3a87x1h0mX/lZPOXuPKJW6U0FVQwd7jTaSUa16piF7AL/LU8h2/kIPBxvPYucmR+HzJQpz0a6U6KwGLE74YVppVewfMO+r332cCXGV7nJXhQ+D+tNLRCf+yndRKpAtHsRDBK+4GRAZBMKZZ3gjbXkGy2ehp2OVHf24sTb11tRwIDAQAB",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
   "action": {
-    "default_title": "Open Missed. Catch-Up"
+    "default_title": "Open Missed. Catch-Up",
+    "default_popup": "sidepanel.html"
   },
   "side_panel": {
     "default_path": "sidepanel.html"
   },
   "permissions": [
     "sidePanel",
+    "tabs",
     "activeTab",
-    "scripting"
+    "scripting",
+    "storage"
   ],
   "host_permissions": [
-    "https://web.whatsapp.com/*"
+    "https://web.whatsapp.com/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -28,13 +34,37 @@
   "content_scripts": [
     {
       "matches": [
-        "https://web.whatsapp.com/*"
+        "https://web.whatsapp.com/*",
+        "http://localhost/*",
+        "http://127.0.0.1/*"
       ],
       "js": [
         "content.js"
       ],
       "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "http://localhost/*",
+        "http://127.0.0.1/*"
+      ],
+      "js": [
+        "web-auth-bridge.js"
+      ],
+      "run_at": "document_idle"
     }
-  ]
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "sidepanel.html",
+        "sidepanel.css",
+        "sidepanel.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "options_page": "sidepanel.html"
 }
-

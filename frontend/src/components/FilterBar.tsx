@@ -1,5 +1,5 @@
 import React from 'react';
-import type { FindingCategory } from '../types';
+import type { FindingCategory } from '@missed/engine';
 import {
   Search,
   Filter,

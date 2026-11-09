@@ -223,21 +223,32 @@ The application is structured as a single-page responsive dashboard (`App.tsx`) 
 
 ---
 
-## 8. Backend Requirements
+## 8. Backend & Persistence Requirements (Phase 2)
 
-- **Backend Status:** **None (N/A for MVP).**
-- All parsing, normalization, heuristic extraction, priority scoring, and search/filtering execute purely in the user's browser.
-- Eliminates server setup costs, network latency, deployment complexity, and privacy leak risks during the hackathon.
+- **Dual Execution Modes:**
+  1. **Local / Demo Mode:** Zero-network, 100% in-browser deterministic parsing and analysis via `@missed/engine`.
+  2. **Authenticated Persistence Mode (`server/`):** Optional server-backed workspace using Hono, TypeScript, Zod, Supabase Auth, and Supabase PostgreSQL.
+- **Security & Tenant Isolation:**
+  - Server-side Bearer token verification (`requireAuth`) on every protected endpoint.
+  - PostgreSQL Row-Level Security (`ENABLE` + `FORCE ROW LEVEL SECURITY`) with `auth.uid() = owner_id` policies on `conversations`, `messages`, `findings`, `tasks`, and `user_settings`.
+  - Strict Zod request validation (`.strict()`) rejecting client-supplied `owner_id` / `user_id` fields.
+  - 10 MiB (`MAX_FILE_SIZE_BYTES = 10,485,760`) server-side import payload cap enforced before parsing.
+  - Atomic conversation bundle persistence with rollback cleanup on partial failure.
+  - Dependency-safe ordered account deletion (`tasks` -> `findings` -> `messages` -> `conversations` -> `user_settings` -> auth user).
 
 ---
 
 ## 9. API Requirements
 
-- **External Network APIs:** **None.**
-- **Internal Functional Contracts (TypeScript):**
-  - `parseConversation(rawContent: string, fileName: string): Promise<ParsedMessage[]>`
-  - `analyzeConversation(messages: ParsedMessage[], userFilter?: string): ConversationAnalysis`
-  - `scoreUrgency(item: RawFinding): UrgencyLevel`
+- **Shared Deterministic Engine (`@missed/engine`):**
+  - `parseConversation(rawContent: string, fileName?: string): ParseResult`
+  - `analyzeConversation(messages: ParsedMessage[]): ConversationAnalysis`
+- **Backend REST API (`server/` — see [docs/API.md](./API.md)):**
+  - `GET /api/health`
+  - `POST /api/auth/signup`, `POST /api/auth/signin`, `POST /api/auth/signout`, `GET /api/auth/me`, `DELETE /api/auth/account`
+  - `GET /api/conversations`, `POST /api/conversations`, `GET /api/conversations/:id`, `DELETE /api/conversations/:id`
+  - `PATCH /api/tasks/:findingId`
+  - `GET /api/settings`, `PUT /api/settings`
 
 ---
 

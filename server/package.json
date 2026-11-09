@@ -1,0 +1,26 @@
+{
+  "name": "server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch --experimental-strip-types src/index.ts",
+    "start": "node --experimental-strip-types src/index.ts",
+    "test": "node --test --experimental-strip-types \"tests/**/*.test.ts\"",
+    "lint": "oxlint src tests",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.8",
+    "@missed/engine": "*",
+    "@supabase/supabase-js": "^2.49.1",
+    "hono": "^4.7.4",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "oxlint": "^1.81.0",
+    "typescript": "~6.0.2"
+  }
+}

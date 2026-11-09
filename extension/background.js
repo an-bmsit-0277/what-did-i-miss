@@ -10,3 +10,18 @@ chrome.runtime.onInstalled.addListener(() => {
   }
 });
 
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request?.type === 'MISSED_SESSION_SYNC' && request.token) {
+    chrome.storage.local.set({ missed_auth_token: request.token }, () => {
+      sendResponse({ success: true });
+    });
+    return true;
+  }
+  if (request?.type === 'OPEN_SIDEPANEL_TAB') {
+    chrome.tabs.create({ url: chrome.runtime.getURL('sidepanel.html') }, (tab) => {
+      sendResponse({ success: true, tabId: tab?.id });
+    });
+    return true;
+  }
+});
+
